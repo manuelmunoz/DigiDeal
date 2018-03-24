@@ -42,11 +42,105 @@
 			
 		
 			#digipay{
-			margin:10px 0;
+				margin:10px 0;
 				display:inline-block;
 				text-align:initial;
 			}
+			
+			@font-face {
+			font-family: avenir_next;
+			src: url(fonts/AvenirNextLTPro-Demi.woff);
+		}
+			/* rgb(0, 102, 204); ;
+			
+			
+				/*digiwrapper*/
+			.digiwrapper{
+				color:#FFF;
+				background-color:#002252;
+				font-family:"avenir_next", sans-serif;
+				
+				width:500px;
+				padding:20px
+			}
+			
+			
+				/* statusimage related */
+			
+				.digiwrapper .statusimage{
+					padding:20px;
+					text-align:center
+				}
+				
+				
+					.digiwrapper .qr{
+						display:inline-block
+						overflow:hidden;
+
+						
+					}
+						.digiwrapper .qr canvas{
+							padding:5px;
+							background-color:#FFF;
+							display:inline-block
+							border-radius:3px;
+							border:#000 2px solid;							
+							vertical-align:top;
+							
+						}
 					
+					.digiwrapper .loader {
+						border: 16px solid #f3f3f3; /* Light grey */
+						border-top: 16px solid rgb(0, 102, 204); /* Blue */
+						border-radius: 50%;
+						vertical-align:top;
+						display:inline-block;
+						animation: spin 2s linear infinite;
+					}
+
+					@keyframes spin {
+						0% { transform: rotate(0deg); }
+						100% { transform: rotate(360deg); }
+					}
+
+					
+					
+				/* statustext related */
+					
+				.digiwrapper .status .statusbar{
+					width:100%;
+				
+					text-align:center;
+					margin:5px 0;
+					border-radius:10px;
+					border:solid 2px #333;
+					overflow:hidden;
+				   
+				}
+					.digiwrapper .status .statusbar .inner{
+						padding:5px;
+						text-transform: uppercase;
+						background-color:#FFF;
+						color:#000;
+						line-height:30px;
+						height:40px
+					}
+					
+					.digiwrapper .status .statusbar .inner.pending{
+						background-color:orange;
+						color:#FFF;
+					}
+					.digiwrapper .status .statusbar .inner.ready{
+						background-color:#090;
+							color:#FFF;
+					}
+					.digiwrapper .status .statusbar .inner.failed{
+						background-color:#900;
+							color:#FFF;
+					}
+				
+			
+ 		
 			
 		</style>
 	</head>
@@ -94,6 +188,8 @@
 				console.log(e);
 			
 			}
+			
+			
 			$('#digipay').digipay({
 				'address':address,
 				'amount':amount,
@@ -101,7 +197,7 @@
 				'data':makeid(10),
 				'onSuccess':success,
 				'onStatusUpdate':update,
-				requiredConfirmations : 2,
+				'requiredConfirmations' : 2,
 				'onFail':failed,
 			})
 
