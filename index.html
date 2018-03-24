@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Payment</title>
+		
+		<link href="libs/bs/bootstrap.css" rel="stylesheet">
+		<script type="text/javascript" src="libs/dgb/digibyte.js"></script>
+		<script>
+			
+			
+			var digibyte = require('digibyte');
+
+		
+		</script>
+		
+		<script type="text/javascript" src="libs/jq/jquery.min.js"></script>
+		<script type="text/javascript" src="src/digiObj.js"></script>
+		<script type="text/javascript" src="src/jquery.digipay.js"></script>
+		
+		<link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
+		<link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png">
+		<link rel="manifest" href="img/site.webmanifest">
+		<link rel="mask-icon" href="img/safari-pinned-tab.svg" color="#5bbad5">
+		<link rel="shortcut icon" href="img/favicon.ico">
+		<meta name="msapplication-TileColor" content="#da532c">
+		<meta name="msapplication-config" content="img/browserconfig.xml">
+		<meta name="theme-color" content="#ffffff">
+		
+		
+		
+		
+		<style>
+			h1,h2,h3,h4,h5{
+				text-align:center;
+			}
+			body{
+				background-color:#333;
+				text-align:center;
+			}
+			
+		
+			#digipay{
+			margin:10px 0;
+				display:inline-block;
+				text-align:initial;
+			}
+					
+			
+		</style>
+	</head>
+	
+	<body>
+		
+		<div id="wrapper">
+
+			
+			<div id="digipay"></div>
+		
+		</div>
+	
+	
+		<script>
+			function makeid(length) {
+			  var text = "";
+			  var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+			  for (var i = 0; i < length; i++)
+				text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+			  return text;
+			}
+			
+			
+			var address = 'DRumNN3GxnzGV32ARS7gYG9hvNmeTHGkbP';
+			
+			// in satoshi
+			var amount = 100000;
+		
+
+			var success = function (e) {
+				console.log('succes',e);
+				dgboo = new DGBO();
+				dgboo.getOpData(e.endTx.txid).then(result=>{console.log(result)});
+			}
+			var failed = function(e) {
+				console.log('fail',e);
+				
+			}
+			
+			var update = function(e) {
+				
+				console.log(e);
+			
+			}
+			$('#digipay').digipay({
+				'address':address,
+				'amount':amount,
+				'fee':70000,
+				'data':makeid(10),
+				'onSuccess':success,
+				'onStatusUpdate':update,
+				requiredConfirmations : 2,
+				'onFail':failed,
+			})
+
+
+			
+
+		</script>
+	</body>
+</html>
