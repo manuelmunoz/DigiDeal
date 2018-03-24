@@ -27,7 +27,7 @@
 		/* Generate HT
 		L */
 		// main element
-		var main = $('<div class="digiwrapper"><div class="qrwrapper"></div> </div>'); 
+		var main = $('<div class="digiwrapper"><div class="statusimage"></div> </div>'); 
 		
 		
 
@@ -35,8 +35,8 @@
 		var qramount = unit.fromSatoshis(settings.amount+settings.fee).toBTC();
 		createQr({
 			'text':"digibyte:"+bufferPublicAddress+'?amount='+qramount,
-			'width':settings.qrwidth,
-			'height':settings.qrheight,
+			'width':settings.qrwidth-5,
+			'height':settings.qrheight-5,
 		})
 		
 		
@@ -44,7 +44,7 @@
 				
 		var details = $('<div class="details"></div>');
 		
-		details.append('<div class="amount">remaining '+qramount+' DGB</div>');
+		details.append('<div class="amount">Remaining '+qramount+' DGB</div>');
 		details.append('<div class="address">'+bufferPublicAddress+'</div>');
 
 		main.append(details);
@@ -73,51 +73,6 @@
 		return main;
 	
 
-		function finishPayment(address) {
-			// send the total of the generated address to the selected address specified in the instatiation of the jquery payment element
-			
-			return new Promise((resolve, reject) => {
-				DGB.getWalletValue(bufferPublicAddress).then(
-					wval=>{
-						
-						// destinations are being made according to the amount that needs to be paid to the main address.
-						var destinations = {};
-						
-						// fee is for the mainwallet
-						destinations[settings.address] = (settings.amount);
-						
-						console.log(destinations);
-					
-						if(wval.balanceSat > settings.amount+settings.fee) {
-							// spare money will be returned to the last sender.
-							destinations[address]= (wval.balanceSat-(settings.amount+settings.fee));
-							
-						}
-						// transaction is being created with the 2 addresses
-						DGB.createTransaction(bufferPrivateKey, bufferPublicAddress, destinations,bufferPublicAddress,settings.fee,data).then(
-							tx=>{
-								console.log(tx);
-								// send transaction, if it worked
-								DGB.sendTransaction(tx).then(result=>{
-										setStatus('endTx',result);
-										resolve(result)
-									},
-									error=>{
-										reject(error);
-									}
-								);
-							},
-							error=>{reject(error)}
-						)
-					
-					
-					},
-					error=>{reject(error)}
-				)
-			});
-			
-		}
-		
 		
 	
 		
@@ -125,7 +80,7 @@
 		
 		function createQr(qs) {
 				// generate QR with qs settings
-				return $(main).children('.qrwrapper').html($('<div class="qr"></div>').qrcode(qs));
+				return $(main).children('.statusimage').html($('<div class="qr"></div>').qrcode(qs));
 
 
 		}
@@ -159,7 +114,7 @@
 		function checkPayment(address) {
 			getTransactions(address).then((txids)=>{
 				return checkTransactions(txids)}).then(
-				results=>{
+					results=>{
 					txcount = results.length;
 					
 					function byBlocktime(a,b) {
@@ -188,7 +143,7 @@
 									if(trec > settings.amount+settings.fee) {
 										var message = 'Payment overpaid, sending the overspend back to last used public key';
 									} else {
-										var message = 'Payment done';
+										var message = 'Payment completed';
 									}
 									showStatus('transactions',message,'ready');
 									success('Payment done');
@@ -210,12 +165,12 @@
 								
 								// recreate the QR
 								createQr(	{'text':"digibyte:"+bufferPublicAddress+'?amount='+unit.fromSatoshis((needed)).toBTC(),
-									'width':settings.qrwidth,
-									'height':settings.qrheight
+									'width':settings.qrwidth-5,
+									'height':settings.qrheight-5
 									}
 								)
 								// reupdate the amount;
-								$(main).find('.amount').html('remaining '+unit.fromSatoshis((needed)).toBTC()+' DGB');
+								$(main).find('.amount').html('Remaining '+unit.fromSatoshis((needed)).toBTC()+' DGB');
 								
 								// recheck the address for the amount
 								checkPayment(bufferPublicAddress);	
@@ -252,7 +207,7 @@
 			setStatus('confirmed',true);
 			// show the status as ready and payment done
 			// replace the QR with a checkmark.
-			main.find('.qr').html('<img class="check" height="'+settings.qrheight+'" width="'+settings.qrheight+'" src="img/check.svg"/>');
+			main.find('.statusimage').html('<img class="check" height="'+settings.qrheight+'" width="'+settings.qrheight+'" src="img/check.svg"/>');
 			// if there is a callback for succes, execute it.
 			if(settings.onSuccess) {
 				settings.onSuccess(getStatus());
@@ -269,13 +224,13 @@
 				function checkExplorer(address) {
 					$.getJSON( url, function( data ) {
 						
-						showStatus('address','Checking address for transactions');
-						showStatus('transactions','Awaiting payment');
+						showStatus('address','Scan QR with DigiByte Payment App');
+						showStatus('transactions','Checking address for transactions...');
 						if(txcount === data.transactions.length) {
 							setTimeout(checkExplorer,5000,address);
 							
 						} else {
-							
+							$(main).find('.statusimage').html('<div style="width:'+settings.qrwidth+'px;height:'+settings.qrheight+'px;" class="loader"></div>');
 							showStatus('address','Transactions found on address','ready');
 							resolve(data.transactions);
 							
@@ -364,6 +319,55 @@
 			return result;
 		}
 	
+	
+	
+	
+		function finishPayment(address) {
+			// send the total of the generated address to the selected address specified in the instatiation of the jquery payment element
+			
+			return new Promise((resolve, reject) => {
+				DGB.getWalletValue(bufferPublicAddress).then(
+					wval=>{
+						
+						// destinations are being made according to the amount that needs to be paid to the main address.
+						var destinations = {};
+						
+						// fee is for the mainwallet
+						destinations[settings.address] = (settings.amount);
+						
+						console.log(destinations);
+					
+						if(wval.balanceSat > settings.amount+settings.fee) {
+							// spare money will be returned to the last sender.
+							destinations[address]= (wval.balanceSat-(settings.amount+settings.fee));
+							
+						}
+						// transaction is being created with the 2 addresses
+						DGB.createTransaction(bufferPrivateKey, bufferPublicAddress, destinations,bufferPublicAddress,settings.fee,data).then(
+							tx=>{
+								console.log(tx);
+								// send transaction, if it worked
+								DGB.sendTransaction(tx).then(result=>{
+										setStatus('endTx',result);
+										resolve(result)
+									},
+									error=>{
+										reject(error);
+									}
+								);
+							},
+							error=>{reject(error)}
+						)
+					
+					
+					},
+					error=>{reject(error)}
+				)
+			});
+			
+		}
+		
+		
 
 		
 		
@@ -380,12 +384,6 @@
 	$.fn.digipay = function (options) {
 		var settings = $.extend({}, $.fn.digipay.defaults, options);
 		// these paramters are required
-		if($('style#digipay').length == 0 ) {
-			
-			$('head').append('<style id="digipay">.digiwrapper{background-color:#fff;width:500px;padding:10px}.digiwrapper .qrwrapper{padding:10px;text-align:center}.digiwrapper .qr{display:inline-block}.digiwrapper .status .statusbar{width:100%;text-align:center;margin:5px 0;border-radius:10px;border:solid 2px #333;overflow:hidden}.digiwrapper .status .statusbar .inner{padding:5px;line-height:30px;height:40px}.digiwrapper .status .statusbar .inner.pending{background-color:orange}.digiwrapper .status .statusbar .inner.ready{background-color:#090}.digiwrapper .status .statusbar .inner.failed{background-color:#900}</style>');
-	
-		}
-		
 		
 		var required = ['address','amount'];
 		for(var i in required) {
@@ -396,21 +394,50 @@
 
 		var res = $.fn.digipay.validate(settings)
 		
-		if(res) {
+		if(res.valid) {
 			
+			return $(this).append(generatePaymentRequest(settings));
+			
+		} else {
+			
+			for(var i in res.reason) {
+				throw("\n"+res.reason.join("\n\n"))
+			}
+	
 			
 			
 		}
 		
 		
-		return $(this).append(generatePaymentRequest(settings));
+		
 		
 		
 	};
 	
 	$.fn.digipay.validate = function(settings) {
+		console.log(bytelength(settings.data))
+		var res = {
+			valid:true,
+			reason:[]
+		};
+		if(bytelength(settings.data) > 80) {
+			res.reason.push('data setting is too large, it is supported up to 80 bytes, now it is:'+bytelength(settings.data)+'Bytes');
+			res.valid = false;
+		}
 		
-		if(settings.data)
+		if(settings.fee < 70000) {
+			res.reason.push('Digiexplorer as of 23/3/2018 doesn\'t support fees lower than 70000 sat. if you want to ignore this run with setting.validate set to false');
+			res.valid = false;
+		}
+		
+		if(!digibyte.Address.isValid((settings.address))) {
+			res.reason.push('"'+settings.address+'" is not a valid DigiByte address');
+			res.valid = false;
+		}
+		
+		
+		
+		return res;
 		
 		function bytelength(input) {
 			return (new TextEncoder('utf-8').encode(input)).length
@@ -419,13 +446,16 @@
 	};
 	
 	$.fn.digipay.defaults = {
+		
 		qrheight:200,
 		qrwidth:200,
 		requiredConfirmations : 3,
 		onSuccess:false,
 		onInitialize:false,
 		onFail:false,
+		fee:70000,
 		onStatusUpdate:false,
+		validate:true
 	};
 	
 	
