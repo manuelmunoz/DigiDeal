@@ -14,6 +14,8 @@
 
 		var ppk = fgp('ppk');
 		
+		
+		
 		pvk = (ppk ? digibyte.PrivateKey.fromWIF(atob(ppk)) : new digibyte.PrivateKey());
 
 		// create pvk WIFF address from the pvk.
@@ -27,7 +29,7 @@
 		/* Generate HT
 		L */
 		// main element
-		var main = $('<div class="digiwrapper"><div class="statusimage"></div> </div>'); 
+		var main = $('<div class="digiwrapper"><div style="height:'+(settings.qrheight+40)+'px;" class="statusimage"></div> </div>'); 
 		
 		
 
@@ -83,7 +85,7 @@
 				
 				qs.width = qs.width-14;
 				qs.height = qs.height-14;
-				return $(main).children('.statusimage').html($('<div class="qr"></div>').qrcode(qs));
+				return main.children('.statusimage').html($('<div class="qr"></div>').qrcode(qs).fadeIn('slow'));
 
 
 		}
@@ -210,13 +212,24 @@
 			setStatus('confirmed',true);
 			// show the status as ready and payment done
 			// replace the QR with a checkmark.
-			main.find('.statusimage').html('<img class="check" height="'+settings.qrheight+'" width="'+settings.qrheight+'" src="img/check.svg"/>');
+			var checkimg = $('<img class="check" height="'+settings.qrheight+'" width="'+settings.qrheight+'" src="img/check.svg"/>').hide();
+			main.find('.statusimage').html(checkimg);
+			checkimg.fadeIn('slow');
 			// if there is a callback for succes, execute it.
 			if(settings.onSuccess) {
 				settings.onSuccess(getStatus());
 			}
 			
 			
+		}
+		
+		function showLoader() {
+			
+			if(main.find('.loader').length == 0) {
+				var loader = $('<div style="width:'+settings.qrwidth+'px;height:'+settings.qrheight+'px;" class="loader"></div>').hide();
+				$(main).find('.statusimage').html(loader);
+				loader.fadeIn('slow');
+			}
 		}
 		
 		function getTransactions(address) {
@@ -233,7 +246,10 @@
 							setTimeout(checkExplorer,5000,address);
 							
 						} else {
-							$(main).find('.statusimage').html('<div style="width:'+settings.qrwidth+'px;height:'+settings.qrheight+'px;" class="loader"></div>');
+							
+							
+							
+							showLoader();
 							showStatus('address','Transactions found on address','ready');
 							resolve(data.transactions);
 							
