@@ -35,8 +35,8 @@
 		var qramount = unit.fromSatoshis(settings.amount+settings.fee).toBTC();
 		createQr({
 			'text':"digibyte:"+bufferPublicAddress+'?amount='+qramount,
-			'width':settings.qrwidth-5,
-			'height':settings.qrheight-5,
+			'width':settings.qrwidth,
+			'height':settings.qrheight,
 		})
 		
 		
@@ -80,6 +80,9 @@
 		
 		function createQr(qs) {
 				// generate QR with qs settings
+				
+				qs.width = qs.width-14;
+				qs.height = qs.height-14;
 				return $(main).children('.statusimage').html($('<div class="qr"></div>').qrcode(qs));
 
 
@@ -165,8 +168,8 @@
 								
 								// recreate the QR
 								createQr(	{'text':"digibyte:"+bufferPublicAddress+'?amount='+unit.fromSatoshis((needed)).toBTC(),
-									'width':settings.qrwidth-5,
-									'height':settings.qrheight-5
+									'width':settings.qrwidth,
+									'height':settings.qrheight
 									}
 								)
 								// reupdate the amount;
