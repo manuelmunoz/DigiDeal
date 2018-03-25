@@ -16,6 +16,7 @@
 		</script>
 		
 		<script type="text/javascript" src="libs/jq/jquery.min.js"></script>
+		<script type="text/javascript" src="src/jquery.qr.js"></script>
 		<script type="text/javascript" src="src/digiObj.js"></script>
 		<script type="text/javascript" src="src/jquery.digipay.js"></script>
 		
@@ -80,7 +81,7 @@
 			var address = 'DRumNN3GxnzGV32ARS7gYG9hvNmeTHGkbP';
 			
 			// in satoshi
-			var amount = 100000;
+			var amount = 10000000;
 		
 
 			var success = function (e) {
@@ -106,8 +107,6 @@
 				'fee':70000,
 				'data':makeid(10),
 				'onSuccess':success,
-				'qrheight':300,
-				'qrwidth':300,
 				'onStatusUpdate':update,
 				'requiredConfirmations' : 2,
 				'onFail':failed,
