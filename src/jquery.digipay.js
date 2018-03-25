@@ -56,7 +56,7 @@
 				
 		var details = $('<div class="details"></div>');
 		
-		details.append('<div class="amount">Remaining '+qramount+' DGB</div>');
+		details.append('<div class="amount">Remaining '+unit.fromSatoshis(settings.amount).toBTC()+' DGB + ('+unit.fromSatoshis(settings.fee).toBTC()+'Fee)</div>');
 		details.append('<div class="address">'+bufferPublicAddress+'</div>');
 		details.append('<div class="txid">Txid:'+data+'</div>');
 		main.append(details);
