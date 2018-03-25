@@ -60,13 +60,17 @@
 		
 		<div id="wrapper">
 
-			
+			<a id="newtx" class="btn btn-primary" href="/">New tx</a>
 			<div id="digipay"></div>
 		
 		</div>
 	
 	
 		<script>
+		
+			
+			$('#newtx').attr('href',window.location.href.split('?')[0]);
+		
 			function makeid(length) {
 			  var text = "";
 			  var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
