@@ -85,7 +85,7 @@
 			var address = 'DRumNN3GxnzGV32ARS7gYG9hvNmeTHGkbP';
 			
 			// in satoshi
-			var amount = 10000000;
+			var amount = 150000;
 		
 
 			var success = function (e) {
@@ -95,6 +95,11 @@
 			}
 			var failed = function(e) {
 				console.log('fail',e);
+				
+			}
+			
+			var init = function(e) {
+				console.log('init',e);
 				
 			}
 			
@@ -112,6 +117,7 @@
 				'data':makeid(10),
 				'onSuccess':success,
 				'onStatusUpdate':update,
+				'onInitialize':init,
 				'requiredConfirmations' : 2,
 				'onFail':failed,
 			})
