@@ -262,7 +262,7 @@ class DGBO {
 				
 			function _checkTransaction(tx,n) {
 		
-				var url = 'https://digiexplorer.info/api/tx/'+tx;
+				var url = DGBO.explorerUrl+'/api/tx/'+tx;
 
 				return new Promise((resolve, reject) => {
 					
@@ -291,7 +291,7 @@ class DGBO {
 		}
 		static checkTransaction(tx,n) {
 		
-			var url = 'https://digiexplorer.info/api/tx/'+tx;
+			var url = DGBO.explorerUrl+'/api/tx/'+tx;
 
 			return new Promise((resolve, reject) => {
 				
@@ -348,6 +348,6 @@ class DGBO {
 	
 	DGBO.explorerUrl = "https://digiexplorer.info";
 	DGBO.marketUrl = "https://api.coinmarketcap.com/v1/ticker/digibyte/";
-	DGBO.digibyte = require('digibyte');
+
 
 			

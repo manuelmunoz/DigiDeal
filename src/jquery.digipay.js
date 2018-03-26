@@ -15,16 +15,16 @@
 			if(typeof options =='object') {
 				
 				
-				
-				
+				data.settings = options;
 				
 				
 				
 			} else {
 				if(typeof options == 'string') {
 					if(typeof value !== 'undefined') {
-						data[options] = value;
-						
+						var settings = {};
+						settings[options]=value;
+						data.settings = settings;
 					} else {
 						return data[options];
 					}
@@ -39,7 +39,7 @@
 
 			var settings = $.extend({}, $.fn.digipay.defaults, options);
 			// these paramters are required
-
+			
 			var required = [];
 			
 			for(var i in required) {
@@ -48,6 +48,8 @@
 				}
 			}
 
+			
+			
 			// is it called correctly using an ID instead of a class.
 			
 			if(this.selector.indexOf('#') === -1) {
@@ -60,9 +62,8 @@
 			
 			
 			
-			
-			var dgp = new DigiPay(settings,$(this));
-			
+			var dgp = new DigiPay(settings);
+
 			// add the HTML to the element
 			$(this).append(dgp.getHtml());
 			
@@ -89,6 +90,12 @@
 	$.fn.digipay.defaults = {
 		// size of the QR, not the element. 
 		size:300,
+		
+		
+		
+		// Theme
+		// 'light','dark'
+		theme:'dark',
 		
 		
 		

@@ -1,19 +1,34 @@
 class DigiPay {
 		
 		
-		constructor(settings,main) {
-			this.settings = settings;
-			this.statusObject = {};
-			this.data = this.fgp('data') || settings.data;
-			var ppk = this.fgp('ppk');
-			this.pvk = (ppk ? digibyte.PrivateKey.fromWIF(atob(ppk)) : new digibyte.PrivateKey());
-			this.txcount = 0;
-			this.unit = digibyte.Unit;
-			this.bufferPrivateKey = this.pvk.toWIF().toString();
-			this.bufferPublicAddress = this.pvk.publicKey.toAddress().toString();
-			history.pushState('', '', '?ppk='+btoa(this.bufferPrivateKey)+'&data='+this.data);
-			this.qrimage = $('<img src="img/qr.png"/>');
+		constructor(settings) {
+			
 			this.main = $('<div class="digiwrapper"></div>');
+			this._settings = {};
+			
+			this.settings = settings;
+			
+			this.statusObject = {};
+			
+			this.data = this.fgp('data') || settings.data;
+			
+			var ppk = this.fgp('ppk');
+			
+			this.pvk = (ppk ? digibyte.PrivateKey.fromWIF(atob(ppk)) : new digibyte.PrivateKey());
+			
+			this.txcount = 0;
+			
+			this.unit = digibyte.Unit;
+			
+			this.bufferPrivateKey = this.pvk.toWIF().toString();
+			
+			this.bufferPublicAddress = this.pvk.publicKey.toAddress().toString();
+			
+			history.pushState('', '', '?ppk='+btoa(this.bufferPrivateKey)+'&data='+this.data);
+			
+			this.qrimage = $('<img src="img/qr.png"/>');
+			
+			
 			
 			
 			
@@ -22,16 +37,37 @@ class DigiPay {
 	
 		
 		// SETTERS
-
+		set settings(settings) {
+			var exceptions = ['onStatusUpdate','onSuccess','onFail','onInitialize'];
+			$.each(settings, (i, c)=>{
+				
+				if(typeof this[i] == 'function' && !(i in exceptions)) {
+					
+					throw(i+' cant be set because it is a function, not a property');
+				}
+				
+			   this[i]=c;
+			   
+			   
+			});
+			
+			this._settings = $.extend(this._settings,settings);
+		}
 	
+		get settings() {
+			return this._settings;
+		}
+	
+		set theme(theme) {
+			var themes = ['light','dark'];
+			$.each(themes, (i, c)=>{
+			   this.main.removeClass(c);
+			});
+			this._settings.theme = theme;
+			this.main.addClass(theme);
+		}
 		
-		
-		
-		
-		
-		
-		
-		
+
 		
 		
 		
@@ -79,18 +115,18 @@ class DigiPay {
 			/* Generate HT
 			L */
 			// main element
-			this.main.append('<div style="height:'+(this.settings.size+40)+'px;" class="statusimage"></div> </div>'); 
+			this.main.append('<div style="height:'+(this.size+40)+'px;" class="statusimage"></div> </div>'); 
 			
 			
 
 			// add qr
-			var qramount = this.unit.fromSatoshis(this.settings.amount+this.settings.fee).toBTC();
+			var qramount = this.unit.fromSatoshis(this.amount+this.fee).toBTC();
 			
 			
 			this.qrimage.on('load',()=> {
 				this.createQr({
 					'text':"digibyte:"+this.bufferPublicAddress+'?amount='+qramount,
-					'size':this.settings.size,
+					'size':this.size,
 		
 				})
 				
@@ -103,7 +139,7 @@ class DigiPay {
 					
 			var details = $('<div class="details"></div>');
 			
-			details.append('<div class="amount">To pay '+this.unit.fromSatoshis(this.settings.amount).toBTC()+' DGB + ('+this.unit.fromSatoshis(this.settings.fee).toBTC()+'Fee)</div>');
+			details.append('<div class="amount">To pay '+this.unit.fromSatoshis(this.amount).toBTC()+' DGB + ('+this.unit.fromSatoshis(this.fee).toBTC()+'Fee)</div>');
 			details.append('<div class="address">'+this.bufferPublicAddress+'</div>');
 			details.append('<div class="txid">Txid:'+this.data+'</div>');
 			
@@ -117,9 +153,9 @@ class DigiPay {
 
 			
 		
-			if(this.settings.onInitialize) {
+			if(this.onInitialize) {
 				// return a callback depending if it is set.
-				this.settings.onInitialize({
+				this.onInitialize({
 					publicKey:this.bufferPublicAddress,
 					privateKey:this.bufferPrivateKey,
 				});
@@ -198,13 +234,13 @@ class DigiPay {
 
 						// check if the balance matches the specified amount;
 						
-						if(trec >= this.settings.amount+this.settings.fee) {
+						if(trec >= this.amount+this.fee) {
 							
 							// send the total wallet of the bufferaddress to the specified address;
 							if(balance > 0) {
 								this.finishPayment(results[0].vin[0].addr).then(result=>{
 									this.setStatus('txs',results);
-									if(trec > this.settings.amount+this.settings.fee) {
+									if(trec > this.amount+this.fee) {
 										var message = 'Payment overpaid, sending the overspend back to last used public key';
 									} else {
 										var message = 'Payment completed';
@@ -223,13 +259,13 @@ class DigiPay {
 							
 						} else {
 							// paid not enough
-							var needed = this.settings.amount+this.settings.fee-trec;
+							var needed = this.amount+this.fee-trec;
 								this.showStatus('transactions','Transaction underpaid by '+(needed),'pending');
 							// first remake a new payment;	
 								
 								// recreate the QR
 								this.createQr(	{'text':"digibyte:"+this.bufferPublicAddress+'?amount='+this.unit.fromSatoshis((needed)).toBTC(),
-									'size':this.settings.size
+									'size':this.size
 									}
 								)
 								// reupdate the amount;
@@ -258,8 +294,8 @@ class DigiPay {
 			this.setStatus('message',message);
 			this.setStatus('confirmed',false);
 			this.showStatus('address',message,'failed');
-			if(this.settings.onFail) {
-				this.settings.onFail(this.getStatus());
+			if(this.onFail) {
+				this.onFail(this.getStatus());
 			}
 			
 		}
@@ -269,12 +305,12 @@ class DigiPay {
 			this.setStatus('confirmed',true);
 			// show the status as ready and payment done
 			// replace the QR with a checkmark.
-			var checkimg = $('<img class="check" height="'+this.settings.size+'" width="'+this.settings.size+'" src="img/check.svg"/>').hide();
+			var checkimg = $('<img class="check" height="'+this.size+'" width="'+this.size+'" src="img/check.svg"/>').hide();
 			this.main.find('.statusimage').html(checkimg);
 			checkimg.fadeIn('slow');
 			// if there is a callback for succes, execute it.
-			if(this.settings.onSuccess) {
-				this.settings.onSuccess(this.getStatus());
+			if(this.onSuccess) {
+				this.onSuccess(this.getStatus());
 			}
 			
 			
@@ -283,7 +319,7 @@ class DigiPay {
 		showLoader() {
 			
 			if(this.main.find('.loader').length == 0) {
-				var loader = $('<div style="width:'+this.settings.size+'px;height:'+this.settings.size+'px;" class="loader"></div>').hide();
+				var loader = $('<div style="width:'+this.size+'px;height:'+this.size+'px;" class="loader"></div>').hide();
 				this.main.find('.statusimage').html(loader);
 				loader.fadeIn('slow');
 			}
@@ -329,7 +365,7 @@ class DigiPay {
 				var promises = [];
 				// loop al TX and see if the confirmations are all in check				
 				for(var i in txids) {
-					promises.push(_checkTransaction(txids[i],this.settings.requiredConfirmations));
+					promises.push(_checkTransaction(txids[i],this.requiredConfirmations));
 				}
 
 				Promise.all(promises)
@@ -380,8 +416,8 @@ class DigiPay {
 				el.addClass(classname);
 			}
 			
-			if(this.settings.onStatusUpdate) {
-				this.settings.onStatusUpdate({name,message,'flag':classname});
+			if(this.onStatusUpdate) {
+				this.onStatusUpdate({name,message,'flag':classname});
 			}
 		}
 		
@@ -410,15 +446,15 @@ class DigiPay {
 						var destinations = {};
 						
 						// fee is for the mainwallet
-						destinations[this.settings.address] = (this.settings.amount);
+						destinations[this.address] = (this.amount);
 							
-						if(wval.balanceSat > this.settings.amount+this.settings.fee) {
+						if(wval.balanceSat > this.amount+this.fee) {
 							// spare money will be returned to the last sender.
-							destinations[address]= (wval.balanceSat-(this.settings.amount+this.settings.fee));
+							destinations[address]= (wval.balanceSat-(this.amount+this.fee));
 							
 						}
 						// transaction is being created with the 2 addresses
-						DGBO.createTransaction(this.bufferPrivateKey, this.bufferPublicAddress, destinations,this.bufferPublicAddress,this.settings.fee,this.data).then(
+						DGBO.createTransaction(this.bufferPrivateKey, this.bufferPublicAddress, destinations,this.bufferPublicAddress,this.fee,this.data).then(
 							tx=>{
 							
 								// send transaction, if it worked
