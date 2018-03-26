@@ -1,24 +1,13 @@
 
-
 class DGBO {
 		
 		
-		
-		
-		constructor(settings) {
-			
-			
-			
-			
-			this.explorerUrl = "https://digiexplorer.info";
-			this.marketUrl = "https://api.coinmarketcap.com/v1/ticker/digibyte/";
-			this.digibyte = require('digibyte');
 
-		}
 
-		getMarketValue() {
+		
+		static getMarketValue() {
 			return new Promise((resolve, reject) => {
-				$.getJSON( this.marketUrl, function( data ) {
+				$.getJSON(DGBO.marketUrl, function( data ) {
 					resolve(data[0]);
 				}).error(function(e){
 					reject('price not found');
@@ -26,8 +15,8 @@ class DGBO {
 			});
 		}
 		
-		getUTXO(address) {
-			var url = this.explorerUrl+'/api/addr/'+address+'/utxo';
+		static getUTXO(address) {
+			var url = DGBO.explorerUrl+'/api/addr/'+address+'/utxo';
 
 			return new Promise((resolve, reject) => {
 				
@@ -41,9 +30,9 @@ class DGBO {
 
 		}
 		
-		getWalletValue(address) {
+		static getWalletValue(address) {
 			return new Promise((resolve, reject) => {
-				$.getJSON( this.explorerUrl + "/api/addr/" + address, (data) => {
+				$.getJSON( DGBO.explorerUrl + "/api/addr/" + address, (data) => {
 					
 					resolve(data);
 				}).error(function() {
@@ -57,11 +46,11 @@ class DGBO {
 		
 		
 		
-		sendAll(sourcePrivateKey,destinationAddress) {
+		static sendAll(sourcePrivateKey,destinationAddress) {
 			return new Promise((resolve, reject) => {
 				var sourceAddress = sourcePrivateKey.publicKey.toAddress().toString();
 				
-				this.getWalletValue(sourceAddress).then(value=>{
+				DGBO.getWalletValue(sourceAddress).then(value=>{
 					resolve(value);
 					
 				});
@@ -71,7 +60,7 @@ class DGBO {
 		
 		
 	
-		createTransaction(sourcePrivateKey, sourceAddress, destinations, changeAddress,fee,data) {
+		static createTransaction(sourcePrivateKey, sourceAddress, destinations, changeAddress,fee,data) {
 			// destinations object has this structure
 			// eg. {
 			//			"DSDgxyw9KqxPRD44S1kaUvRRZyFVrPP1QF":1000,
@@ -80,7 +69,7 @@ class DGBO {
 			data = data || false;
 			changeAddress = changeAddress || sourceAddress;
 			return new Promise((resolve, reject) => {
-				this.getUTXO(sourceAddress).then(utxos => {
+				DGBO.getUTXO(sourceAddress).then(utxos => {
 					
 					if(utxos.length == 0) {
 						reject("The source address has no unspent transactions");
@@ -118,13 +107,13 @@ class DGBO {
 		
 		
 		
-		getDataFile(address) {
+		static getDataFile(address) {
 			
 			return new Promise((resolve, reject) => {
 				
-				this.getWalletValue(address).then(result=>{
+				DGBO.getWalletValue(address).then(result=>{
 
-					this.checkTransactions(result.transactions).then(result=>{
+					DGBO.checkTransactions(result.transactions).then(result=>{
 						var txs = [];
 						for(var i in result) {
 							
@@ -139,7 +128,7 @@ class DGBO {
 							}
 
 						}					
-						this.checkTransactions(txs).then(result=>{
+						DGBO.checkTransactions(txs).then(result=>{
 							var filearray = [];
 					
 							for(var i in result) {
@@ -188,7 +177,7 @@ class DGBO {
 		
 		
 		
-		getTxData(txid) {
+		static getTxData(txid) {
 			var url = this.explorerUrl+'/api/tx/'+txid;
 			
 			return new Promise((resolve, reject) => {
@@ -206,7 +195,7 @@ class DGBO {
 			
 		}
 		
-		getOpData(tx) {
+		static getOpData(tx) {
 			
 			return new Promise((resolve, reject) => {
 				if(typeof tx !== 'Object') {
@@ -250,7 +239,7 @@ class DGBO {
 		}
 		
 		
-		checkTransactions(txids) {
+		static checkTransactions(txids) {
 			var txs = [];
 			return new Promise((resolve, reject) => {
 			
@@ -300,7 +289,7 @@ class DGBO {
 			}
 		
 		}
-		checkTransaction(tx,n) {
+		static checkTransaction(tx,n) {
 		
 			var url = 'https://digiexplorer.info/api/tx/'+tx;
 
@@ -330,7 +319,7 @@ class DGBO {
 		}
 		
 		
-		sendTransaction(transaction) {
+		static sendTransaction(transaction) {
 
 			 return new Promise((resolve, reject) => {
 				$.ajax({
@@ -356,4 +345,9 @@ class DGBO {
 		}
 		
 	}
+	
+	DGBO.explorerUrl = "https://digiexplorer.info";
+	DGBO.marketUrl = "https://api.coinmarketcap.com/v1/ticker/digibyte/";
+	DGBO.digibyte = require('digibyte');
 
+			

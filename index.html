@@ -17,6 +17,7 @@
 		
 		<script type="text/javascript" src="libs/jq/jquery.min.js"></script>
 		<script type="text/javascript" src="src/jquery.qr.js"></script>
+		<script type="text/javascript" src="src/digipayclass.js"></script>
 		<script type="text/javascript" src="src/digiObj.js"></script>
 		<script type="text/javascript" src="src/jquery.digipay.js"></script>
 		
@@ -90,8 +91,8 @@
 
 			var success = function (e) {
 				console.log('succes',e);
-				dgboo = new DGBO();
-				dgboo.getOpData(e.endTx.txid).then(result=>{console.log(result)});
+				
+				DGBO.getOpData(e.endTx.txid).then(result=>{console.log(result)});
 			}
 			var failed = function(e) {
 				console.log('fail',e);
@@ -110,20 +111,26 @@
 			}
 			
 			
-			$('#digipay').digipay({
+
+			var dgp = $('#digipay').digipay({
 				'address':address,
 				'amount':amount,
 				'fee':70000,
 				'data':makeid(10),
 				'onSuccess':success,
-				'onStatusUpdate':update,
+				//'onStatusUpdate':update,
 				'onInitialize':init,
 				'requiredConfirmations' : 2,
 				'onFail':failed,
 			})
-
-
 			
+			
+			
+			
+			
+			
+			console.log(dgp.digipay('test','test'));
+		
 
 		</script>
 	</body>
