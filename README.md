@@ -1,2 +1,2 @@
 # DigiPay
-Digibyte javscript client side jQuery payment method
+DigiByte javascript client side jQuery payment method
