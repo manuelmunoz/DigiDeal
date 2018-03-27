@@ -4,28 +4,42 @@ class DigiPay {
 		constructor(settings) {
 			
 			this.main = $('<div class="digiwrapper"></div>');
+			// shadow copy of the settings, used in get settings()
 			this._settings = {};
 			
 			this.settings = settings;
 			
+			// statusobject is being used to return when an eventhandler is being called
 			this.statusObject = {};
 			
+			// data to be submitted in the blockchain is taken from the GET value 'data', or is taken from the settings object
 			this.data = this.fgp('data') || settings.data;
 			
+			// privatekey is being taken from the get value 'ppk'
 			var ppk = this.fgp('ppk');
-			
 			this.pvk = (ppk ? digibyte.PrivateKey.fromWIF(atob(ppk)) : new digibyte.PrivateKey());
 			
+			// txcount is being saved to make sure that during checkPayment not verytime all tx are being checked
 			this.txcount = 0;
 			
+			// the DigiByte unit class to convert SAT to DGB
 			this.unit = digibyte.Unit;
 			
+			// privatekey and public key pair buffer used to recieve the DigiByte to send to the eventual address specified
 			this.bufferPrivateKey = this.pvk.toWIF().toString();
-			
 			this.bufferPublicAddress = this.pvk.publicKey.toAddress().toString();
 			
+			// save it to the status object
+			this.setStatus('publicKey',this.bufferPublicAddress)
+			this.setStatus('privateKey',this.bufferPrivateKey)
+	
+			
+			
+			
+			//  save the data to the GET properties in the url, needs to be cleaner
 			history.pushState('', '', '?ppk='+btoa(this.bufferPrivateKey)+'&data='+this.data);
 			
+			// store the QR DGB logo image in the class.
 			this.qrimage = $('<img src="img/qr.png"/>');
 			
 			
@@ -38,6 +52,7 @@ class DigiPay {
 		
 		// SETTERS
 		set settings(settings) {
+			// fucntions arent alowed to be overwritten, except these
 			var exceptions = ['onStatusUpdate','onSuccess','onFail','onInitialize'];
 			$.each(settings, (i, c)=>{
 				
@@ -52,6 +67,8 @@ class DigiPay {
 			});
 			
 			this._settings = $.extend(this._settings,settings);
+			
+			
 		}
 	
 		get settings() {
@@ -77,24 +94,7 @@ class DigiPay {
 		// GETTERS
 		
 		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
+
 		
 		
 		///// Functions
@@ -104,20 +104,11 @@ class DigiPay {
 		
 		
 		getHtml() {
-			// check if a session is already in the address
 
-			// create pvk WIFF address from the pvk.
-
-			
-			// make savestate for if someone accidentaly presses F5
-			// to be called once;
-			
 			/* Generate HT
 			L */
 			// main element
 			this.main.append('<div style="height:'+(this.size+40)+'px;" class="statusimage"></div> </div>'); 
-			
-			
 
 			// add qr
 			var qramount = this.unit.fromSatoshis(this.amount+this.fee).toBTC();
@@ -131,10 +122,7 @@ class DigiPay {
 				})
 				
 			});
-			
 
-			
-			
 			// add details of transaction
 					
 			var details = $('<div class="details"></div>');
@@ -155,10 +143,7 @@ class DigiPay {
 		
 			if(this.onInitialize) {
 				// return a callback depending if it is set.
-				this.onInitialize({
-					publicKey:this.bufferPublicAddress,
-					privateKey:this.bufferPrivateKey,
-				});
+				this.onInitialize(this.getStatus());
 			}
 			
 			// Return the html element to be inserted using jquery
@@ -167,10 +152,7 @@ class DigiPay {
 		
 		}
 		
-	
-		
-		
-		
+
 		createQr(qs) {
 				// generate QR with qs settings
 				
