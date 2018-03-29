@@ -3,85 +3,66 @@
 	$.fn.digipay = function (options,value) {
 		
 		var data = $(this).data('_digipay');
-		
-	
-		
-		
+
 		if(data) {
+				
+			// already setup a payment before
+		
 		
 			// set options accordingly after the class has been made
-			
-			
+
 			if(typeof options =='object') {
-				
-				
-				data.settings = options;
-				
-				
-				
+			
+				data.setSettings(options);
+
 			} else {
 				if(typeof options == 'string') {
 					if(typeof value !== 'undefined') {
+						
+						
 						var settings = {};
 						settings[options]=value;
-						data.settings = settings;
+						data.setSettings(settings);
+						
+						
 					} else {
+
+						if(typeof data[options] === 'function') {
+							
+							return data[options]();
+						}
 						return data[options];
 					}
 				} 
 			}
 			
 			
-			$(this).data('_digipay',data);
+			return data;
 			
 			
 		} else {
 
 			var settings = $.extend({}, $.fn.digipay.defaults, options);
 			// these paramters are required
-			
-			var required = [];
-			
-			for(var i in required) {
-				if(typeof settings[required[i]] === 'undefined') {
-					 throw 'DigiPay requires '+required[i]+' for its initiation';
-				}
-			}
 
-			
-			
-			// is it called correctly using an ID instead of a class.
-			
 			if(this.selector.indexOf('#') === -1) {
 				throw('DigiPay can only be called with an ID, not a class or "naked" element');
 			}
 			
+			var dgp = new DigiPay(settings,$(this));
 			
-			
-			
-			
-			
-			
-			var dgp = new DigiPay(settings);
-
 			// add the HTML to the element
-			$(this).append(dgp.getHtml());
+			$(this).append(dgp.main);
+			
 			
 			// store the class in the element for future use
 			$(this).data('_digipay',dgp);
 		
-			
-			
-			
-			dgp.checkPayment();
-			
-			
-			
-		
+
 			
 		}
 		
-		return $(this);
+		return dgp;
 		
 		
 	};

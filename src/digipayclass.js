@@ -1,57 +1,28 @@
 class DigiPay {
 		
 		
-		constructor(settings) {
+		constructor(settings,cont) {
 			
-			this.main = $('<div class="digiwrapper"></div>');
+			this.main = this.instanceHtml();
 			// shadow copy of the settings, used in get settings()
-			this._settings = {};
-			
-			this.settings = settings;
-			
-			// statusobject is being used to return when an eventhandler is being called
-			this.statusObject = {};
-			
-			// data to be submitted in the blockchain is taken from the GET value 'data', or is taken from the settings object
-			this.data = this.fgp('data') || settings.data;
-			
-			// privatekey is being taken from the get value 'ppk'
-			var ppk = this.fgp('ppk');
-			this.pvk = (ppk ? digibyte.PrivateKey.fromWIF(atob(ppk)) : new digibyte.PrivateKey());
-			
-			// txcount is being saved to make sure that during checkPayment not verytime all tx are being checked
-			this.txcount = 0;
-			
-			// the DigiByte unit class to convert SAT to DGB
+			this.settings = {};
 			this.unit = digibyte.Unit;
+		
+			this.setSettings(settings);
 			
-			// privatekey and public key pair buffer used to recieve the DigiByte to send to the eventual address specified
-			this.bufferPrivateKey = this.pvk.toWIF().toString();
-			this.bufferPublicAddress = this.pvk.publicKey.toAddress().toString();
-			
-			// save it to the status object
-			this.setStatus('publicKey',this.bufferPublicAddress)
-			this.setStatus('privateKey',this.bufferPrivateKey)
-	
-			
-			
-			
-			//  save the data to the GET properties in the url, needs to be cleaner
-			history.pushState('', '', '?ppk='+btoa(this.bufferPrivateKey)+'&data='+this.data);
-			
+		
 			// store the QR DGB logo image in the class.
 			this.qrimage = $('<img src="img/qr.png"/>');
-			
-			
-			
-			
-			
+		
 		}
 		
-	
+
 		
 		// SETTERS
-		set settings(settings) {
+		setSettings(settings) {
+			function cfl(string) {
+				return string.charAt(0).toUpperCase() + string.toLowerCase().slice(1);
+			}
 			// fucntions arent alowed to be overwritten, except these
 			var exceptions = ['onStatusUpdate','onSuccess','onFail','onInitialize'];
 			$.each(settings, (i, c)=>{
@@ -61,31 +32,72 @@ class DigiPay {
 					throw(i+' cant be set because it is a function, not a property');
 				}
 				
-			   this[i]=c;
+				if(typeof this['set'+cfl(i)] == 'function') {
+					this['set'+cfl(i)](c);
+				} else {
+					this[i]=c;
+				}
+			 
 			   
 			   
 			});
 			
-			this._settings = $.extend(this._settings,settings);
+			this.settings = $.extend(this.settings,settings);
 			
 			
 		}
 	
-		get settings() {
-			return this._settings;
+		setData(data) {
+			if(cb(data) >80) {
+				throw('Data: "'+data+'" is too long, it can only be 80 bytes or less');
+			} else {
+				this.data = data;
+			}
+			function cb(s){
+				var b = 0, i = 0, c
+				for(;c=s.charCodeAt(i++);b+=c>>11?3:c>>7?2:1);
+				return b
+			}
+			
+		}
+		
+		setAmount(amount) {
+			if(amount < 70000) {
+				throw('Amount needs to be more than 70000, or it will be rejected in the digiexplorer API');
+			} else {
+				this.amount = amount;
+			}
+		}
+		
+		
+		setAddress(address) {
+			if(digibyte.Address.isValid(address)) {
+				this.address = address;
+			} else {
+				throw('Address "'+address+'" is not a valid DigiByte public address');
+			}
+			
 		}
 	
-		set theme(theme) {
+	
+		setTheme(theme) {
 			var themes = ['light','dark'];
 			$.each(themes, (i, c)=>{
 			   this.main.removeClass(c);
 			});
-			this._settings.theme = theme;
+
 			this.main.addClass(theme);
 		}
 		
 
-		
+	
+		setMode(mode) {
+			
+			this.mode = mode;
+			
+			
+			
+		}
 		
 		
 		
@@ -99,33 +111,81 @@ class DigiPay {
 		
 		///// Functions
 		
+		newPayment(data,pvk) {
+			
+		
+			for(var i in this.loops) {
+				clearTimeout(this.loops[i]);
+			}
+			this.loops = {};
+			// statusobject is being used to return when an eventhandler is being called
+			this.statusObject = {};
+			
+			// data to be submitted in the blockchain is taken from the GET value 'data', or is taken from the settings object
+
+			if(data) {
+				this.setSettings({data});
+				this.setStatus('data',data);
+			} else {
+				this.data = undefined;
+			}
+			
+			
+			
+			// pvk is either set, or newly generated
+			if(pvk) {
+				this.pvk = digibyte.PrivateKey.fromWIF(pvk);
+			} else {
+				this.pvk = new digibyte.PrivateKey();
+			}
+			
+			
+			// txcount is being saved to make sure that during checkPayment not everytime all tx are being checked
+			this.txcount = 0;
+			
+			// the DigiByte unit class to convert SAT to DGB
+	
+			// privatekey and public key pair buffer used to recieve the DigiByte to send to the eventual address specified
+			this.bufferPrivateKey = this.pvk.toWIF().toString();
+			this.bufferPublicAddress = this.pvk.publicKey.toAddress().toString();
+			
+			// save it to the status object
+			this.setStatus('publicKey',this.bufferPublicAddress)
+			this.setStatus('privateKey',this.bufferPrivateKey)
+	
+			
+			
+			
+			//  save the data to the GET properties in the url, needs to be cleaner
+		
+			
+			this.checkPayment();
+			this.getPaymentHtml();
+			
+		}
 		
 		
 		
-		
-		getHtml() {
+		getPaymentHtml() {
 
 			/* Generate HT
 			L */
 			// main element
-			this.main.append('<div style="height:'+(this.size+40)+'px;" class="statusimage"></div> </div>'); 
+			var details = this.main.find('.statusimage').css({'height':(this.size+40)+'px'});
 
 			// add qr
 			var qramount = this.unit.fromSatoshis(this.amount+this.fee).toBTC();
 			
 			
-			this.qrimage.on('load',()=> {
-				this.createQr({
+
+			this.createQr({
 					'text':"digibyte:"+this.bufferPublicAddress+'?amount='+qramount,
 					'size':this.size,
 		
 				})
-				
-			});
-
 			// add details of transaction
 					
-			var details = $('<div class="details"></div>');
+			var details = this.main.find('.details').empty();
 			
 			details.append('<div class="amount">To pay '+this.unit.fromSatoshis(this.amount).toBTC()+' DGB + ('+this.unit.fromSatoshis(this.fee).toBTC()+'Fee)</div>');
 			details.append('<div class="address">'+this.bufferPublicAddress+'</div>');
@@ -153,6 +213,23 @@ class DigiPay {
 		}
 		
 
+		
+		instanceHtml() {
+			
+			
+			var main = $('<div class="digiwrapper"><div class="statusimage"></div><div class="details"></div><div class="status"></div></div>');
+			
+			return main;
+			
+		}
+		
+		
+		
+		
+		
+		
+		
+		
 		createQr(qs) {
 				// generate QR with qs settings
 				
@@ -168,7 +245,7 @@ class DigiPay {
 		createStatusbars() {
 			
 			// create 2 status bars that update according to stage in transaction
-			var astatus = $('<div class="status"></div>');			
+			var astatus = this.main.find('.status').empty();
 			var statusbar = $('<div class="statusbar"><div class="inner"></div></div>');		
 			var stati = ['address','transactions'];
 
@@ -252,7 +329,7 @@ class DigiPay {
 								)
 								// reupdate the amount;
 
-								// recheck the address for the amount
+								// recheck the address for the amount 
 								this.checkPayment();	
 						}
 						
@@ -318,7 +395,7 @@ class DigiPay {
 						that.showStatus('address','Scan QR with DigiByte Payment App');
 						that.showStatus('transactions','Checking address for transactions...');
 						if(that.txcount === data.transactions.length) {
-							setTimeout(checkExplorer,5000,address);
+							that.loops.getTx = setTimeout(checkExplorer,5000,address);
 							
 						} else {
 							
@@ -377,7 +454,7 @@ class DigiPay {
 								} else {
 									that.showStatus('transactions','Waiting for confirmations '+tc+'/'+rc+'pending');
 									// lets wait for the average blocktiming devided by 2
-									setTimeout(loopconfirm,(7500))
+									that.loops.confirm = setTimeout(loopconfirm,(7500));
 								}
 									
 							}).error(function(e) {
@@ -403,17 +480,7 @@ class DigiPay {
 			}
 		}
 		
-		fgp(parameterName) {
-			var result = null,
-				tmp = [];
-			var items = location.search.substr(1).split("&");
-			for (var index = 0; index < items.length; index++) {
-				tmp = items[index].split("=");
-				if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1]);
-			}
-			return result;
-		}
-	
+		
 	
 	
 	

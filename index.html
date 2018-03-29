@@ -43,6 +43,14 @@
 				text-align:center;
 			}
 			
+			
+			#wrapper{
+				
+				max-width:800px;
+				margin:0 auto;
+			
+			}
+			
 		
 			#digipay{
 				margin:10px 0;
@@ -50,7 +58,10 @@
 				text-align:initial;
 			}
 			
-			
+			.options{
+				background-color:#FFF;
+				padding:10px;
+			}
 			
  		
 			
@@ -61,16 +72,32 @@
 		
 		<div id="wrapper">
 
-			<a id="newtx" class="btn btn-primary" href="/">New tx</a>
+			
 			<div id="digipay"></div>
-		
+			<div class="options">
+			
+				<button id="newtx" class="btn btn-primary">New tx</button>
+				<input type="text" id="address" placeholder="Insert DigiByte-address"/>
+				<input type="number" id="amount" placeholder="Insert amount in Satoshis"/>
+				
+			</div>	
 		</div>
 	
 	
 		<script>
 		
-			
-			$('#newtx').attr('href',window.location.href.split('?')[0]);
+			function fgp(parameterName) {
+				var result = null,
+					tmp = [];
+				var items = location.search.substr(1).split("&");
+				for (var index = 0; index < items.length; index++) {
+					tmp = items[index].split("=");
+					if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1]);
+				}
+				return result;
+			}
+		
+
 		
 			function makeid(length) {
 			  var text = "";
@@ -83,12 +110,7 @@
 			}
 			
 			
-			var address = 'DRumNN3GxnzGV32ARS7gYG9hvNmeTHGkbP';
-			
-			// in satoshi
-			var amount = 150000;
-		
-
+	
 			var success = function (e) {
 				console.log('succes',e);
 				
@@ -100,37 +122,52 @@
 			}
 			
 			var init = function(e) {
-				console.log('init',e);
-				
-			}
-			
-			var update = function(e) {
-				
-				console.log(e);
-			
-			}
-			
-			
+				// this makes sure when you refresh accidentaly, it doesnt overwirte the pvk and data
+				history.pushState('', '', '?ppk='+e.privateKey+'&data='+e.data);
 
-			var dgp = $('#digipay').digipay({
+				
+			}
+			
+			var update = function(e) {console.log(e);}
+			
+			
+			// returns the digipay class, not a jquery element
+		
+		
+		
+		var pvk = fgp('ppk');
+		
+		var data =  fgp('data') || makeid(10);
+		
+		var address = 'DRumNN3GxnzGV32ARS7gYG9hvNmeTHGkbP';
+		
+		// satoshi
+		var amount = 150000;
+		
+		var dgp = $('#digipay').digipay({
 				'address':address,
 				'amount':amount,
 				'fee':70000,
-				'data':makeid(10),
 				'onSuccess':success,
 				'onStatusUpdate':update,
 				'onInitialize':init,
 				'requiredConfirmations' : 2,
 				'onFail':failed,
-			})
+			}).newPayment(data,pvk);
+			// there is no pvk, it will generate a new one.
+			
+			$('#newtx').on('click',function() {
+				
+				var namount = parseInt($('#amount').val()) || parseInt(Math.random()*1000+70000);
+				$('#digipay').digipay({
+					amount:namount,
+					address:$('#address').val()
+				}).newPayment(makeid(10));
+				
+			});
 			
 			
 			
-			
-			
-			
-			console.log(dgp.digipay('test','test'));
-		
 
 		</script>
 	</body>
