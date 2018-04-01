@@ -48,7 +48,7 @@
 			if(this.selector.indexOf('#') === -1) {
 				throw('DigiPay can only be called with an ID, not a class or "naked" element');
 			}
-			
+			$(this).empty();
 			var dgp = new DigiPay(settings,$(this));
 			
 			// add the HTML to the element
@@ -69,11 +69,7 @@
 	
 	
 	$.fn.digipay.defaults = {
-		// size of the QR, not the element. 
-		size:300,
-		
-		
-		
+
 		// Theme
 		// 'light','dark'
 		theme:'dark',

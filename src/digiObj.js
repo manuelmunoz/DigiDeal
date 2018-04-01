@@ -45,19 +45,7 @@ class DGBO {
 		
 		
 		
-		
-		static sendAll(sourcePrivateKey,destinationAddress) {
-			return new Promise((resolve, reject) => {
-				var sourceAddress = sourcePrivateKey.publicKey.toAddress().toString();
-				
-				DGBO.getWalletValue(sourceAddress).then(value=>{
-					resolve(value);
-					
-				});
-				
-			})
-		}
-		
+	
 		
 	
 		static createTransaction(sourcePrivateKey, sourceAddress, destinations, changeAddress,fee,data) {

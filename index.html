@@ -46,13 +46,16 @@
 			
 			#wrapper{
 				
-				max-width:800px;
+				
 				margin:0 auto;
 			
 			}
 			
 		
 			#digipay{
+				max-width:700px;
+				width:100%;
+				border:solid #FF0 5px;
 				margin:10px 0;
 				display:inline-block;
 				text-align:initial;
@@ -75,7 +78,7 @@
 			
 			<div id="digipay"></div>
 			<div class="options">
-			
+				<button id="reimburse" class="btn btn-primary">Reimburse</button>
 				<button id="newtx" class="btn btn-primary">New tx</button>
 				<input type="text" id="address" placeholder="Insert DigiByte-address"/>
 				<input type="number" id="amount" placeholder="Insert amount in Satoshis"/>
@@ -86,29 +89,8 @@
 	
 		<script>
 		
-			function fgp(parameterName) {
-				var result = null,
-					tmp = [];
-				var items = location.search.substr(1).split("&");
-				for (var index = 0; index < items.length; index++) {
-					tmp = items[index].split("=");
-					if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1]);
-				}
-				return result;
-			}
 		
-
 		
-			function makeid(length) {
-			  var text = "";
-			  var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-			  for (var i = 0; i < length; i++)
-				text += possible.charAt(Math.floor(Math.random() * possible.length));
-
-			  return text;
-			}
-			
 			
 	
 			var success = function (e) {
@@ -134,17 +116,17 @@
 			// returns the digipay class, not a jquery element
 		
 		
-		
-		var pvk = fgp('ppk');
-		
-		var data =  fgp('data') || makeid(10);
-		
-		var address = 'DRumNN3GxnzGV32ARS7gYG9hvNmeTHGkbP';
-		
-		// satoshi
-		var amount = 150000;
-		
-		var dgp = $('#digipay').digipay({
+			
+			var pvk = fgp('ppk');
+			
+			var data =  fgp('data') || makeid(10);
+			
+			var address = 'DRumNN3GxnzGV32ARS7gYG9hvNmeTHGkbP';
+			
+			// satoshi
+			var amount = 150000;
+			
+			var dgp = $('#digipay').digipay({
 				'address':address,
 				'amount':amount,
 				'fee':70000,
@@ -156,17 +138,49 @@
 			}).newPayment(data,pvk);
 			// there is no pvk, it will generate a new one.
 			
+			
+			$(window).resize(function() {
+				dgp.resize();
+				console.log('resizing');
+			
+			});
+			
+			
+			$('#reimburse').on('click',function() {
+			
+			
+			
+			});
+			
+			
+			
 			$('#newtx').on('click',function() {
-				
-				var namount = parseInt($('#amount').val()) || parseInt(Math.random()*1000+70000);
+				var namount = parseInt($('#amount').val()) || parseInt(Math.random()*100000+70000);
 				$('#digipay').digipay({
 					amount:namount,
 					address:$('#address').val()
 				}).newPayment(makeid(10));
 				
 			});
-			
-			
+				
+				
+				
+				
+				
+				
+				
+				
+			function makeid(l){ var t = "";var p = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";for(var i=0;i<l;i++){t+=p.charAt(Math.floor(Math.random()*p.length))};return t;}
+				
+			function fgp(parameterName) {
+			var result = null,
+				tmp = [];
+			var items = location.search.substr(1).split("&");
+			for (var index = 0; index < items.length; index++) {
+				tmp = items[index].split("=");
+				if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1]);
+			}
+			return result;}
 			
 
 		</script>

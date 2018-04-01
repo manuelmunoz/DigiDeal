@@ -2,28 +2,61 @@ class DigiPay {
 		
 		
 		constructor(settings,cont) {
-			
+			this.container = cont;
+			// create HTML for everything
+
 			this.main = this.instanceHtml();
-			// shadow copy of the settings, used in get settings()
-			this.settings = {};
-			this.unit = digibyte.Unit;
-		
-			this.setSettings(settings);
+			this.statusObject = {};
 			
+			this.remainingAmount = 0;
+
+			this.settings = {};
+			
+			// event listeners for online
+			
+			window.addEventListener('online',this.online);
+			
+			window.addEventListener('offline',this.offline);
 		
+			this.isOnline = navigator.onLine;
+		
+			
+			// shadow copy of the settings, used in get settings()
+			
+			this.unit = digibyte.Unit;
+			
+			this.setSettings(settings);
 			// store the QR DGB logo image in the class.
 			this.qrimage = $('<img src="img/qr.png"/>');
 		
 		}
 		
-
+		destroy() {
+			this.container.removeData('_digipay')
+			this.main.remove();
+			for(var i in this.loops) {
+				clearTimeout(this.loops[i]);
+			}
+			
+		}
+		
+		
+		online() {
+			this.isOnline = true;
+			console.log('payment system is online');
+		}
+		
+		offline() {
+			this.isOnline = false;
+			console.log('payment system is offline');
+		}
 		
 		// SETTERS
 		setSettings(settings) {
 			function cfl(string) {
 				return string.charAt(0).toUpperCase() + string.toLowerCase().slice(1);
 			}
-			// fucntions arent alowed to be overwritten, except these
+			// functions arent alowed to be overwritten, except these
 			var exceptions = ['onStatusUpdate','onSuccess','onFail','onInitialize'];
 			$.each(settings, (i, c)=>{
 				
@@ -66,6 +99,7 @@ class DigiPay {
 				throw('Amount needs to be more than 70000, or it will be rejected in the digiexplorer API');
 			} else {
 				this.amount = amount;
+				
 			}
 		}
 		
@@ -93,14 +127,26 @@ class DigiPay {
 	
 		setMode(mode) {
 			
+			// mode can be express and advanced
 			this.mode = mode;
-			
-			
-			
+	
 		}
 		
 		
 		
+		
+		getStatus() {
+			return this.statusObject;
+				
+		}
+			
+		setStatus(name,value) {
+			if(typeof value == 'undefined') {
+				this.statusObject = name;
+			} else {
+				this.statusObject[name] = value;
+			}
+		}
 		
 		
 		// GETTERS
@@ -111,16 +157,68 @@ class DigiPay {
 		
 		///// Functions
 		
-		newPayment(data,pvk) {
+		
+		resize() {
+			var element = this.container[0]
+			var cs = getComputedStyle(element);
+			var paddingX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
+
+			var borderX = parseFloat(cs.borderLeftWidth) + parseFloat(cs.borderRightWidth);
+			
+			// Element width and height minus padding and border
+			 var elementWidth = element.offsetWidth - paddingX - borderX;
+			this.container.find('.digiwrapper').css('width',elementWidth);
+			
+			this.size = elementWidth-100;
+			
+			var details = this.main.find('.statusimage').css({'height':(this.size+40)+'px'});
+	
+			// add qr
+			
+			this.genStatus() 
+			
+			
 			
 		
+		}
+		
+		
+		genStatus() {
+			
+			
+			switch(this.getStatus().status) {
+				
+				case 'checking':
+					this.createQr();
+					break;
+				case 'busy':
+					this.showLoader();
+					break;
+				case 'done':
+					var checkimg = $('<img class="check" height="'+this.size+'" width="'+this.size+'" src="img/check.svg"/>').hide();
+					this.main.find('.statusimage').html(checkimg);
+					checkimg.fadeIn('slow');
+					break;
+				default: 
+					this.createQr();
+					break;
+				
+				
+			}
+			
+		}
+		
+		
+		newPayment(data,pvk) {
+			this.remainingAmount = this.amount+this.fee;
+			this.firstpayer = undefined;
 			for(var i in this.loops) {
 				clearTimeout(this.loops[i]);
 			}
 			this.loops = {};
 			// statusobject is being used to return when an eventhandler is being called
 			this.statusObject = {};
-			
+			this.setStatus('status','checking');
 			// data to be submitted in the blockchain is taken from the GET value 'data', or is taken from the settings object
 
 			if(data) {
@@ -161,35 +259,26 @@ class DigiPay {
 			
 			this.checkPayment();
 			this.getPaymentHtml();
-			
+			return this;
 		}
 		
 		
 		
 		getPaymentHtml() {
-
+	
 			/* Generate HT
 			L */
 			// main element
-			var details = this.main.find('.statusimage').css({'height':(this.size+40)+'px'});
-
-			// add qr
-			var qramount = this.unit.fromSatoshis(this.amount+this.fee).toBTC();
 			
-			
-
-			this.createQr({
-					'text':"digibyte:"+this.bufferPublicAddress+'?amount='+qramount,
-					'size':this.size,
 		
-				})
+
 			// add details of transaction
 					
 			var details = this.main.find('.details').empty();
 			
-			details.append('<div class="amount">To pay '+this.unit.fromSatoshis(this.amount).toBTC()+' DGB + ('+this.unit.fromSatoshis(this.fee).toBTC()+'Fee)</div>');
-			details.append('<div class="address">'+this.bufferPublicAddress+'</div>');
-			details.append('<div class="txid">Txid:'+this.data+'</div>');
+			
+			details.html('<div class="amount"></div><div class="address"></div>');
+			
 			
 			this.main.append(details);
 			
@@ -207,7 +296,7 @@ class DigiPay {
 			}
 			
 			// Return the html element to be inserted using jquery
-			
+			this.resize();
 			return this.main;
 		
 		}
@@ -230,16 +319,33 @@ class DigiPay {
 		
 		
 		
-		createQr(qs) {
-				// generate QR with qs settings
+		createQr() {
 				
+				
+				
+				// generate QR with qs settings
+				$(this.main).find('.qr').remove();
+				var qs = {};
+				
+				qs.text = "digibyte:"+this.bufferPublicAddress+'?amount='+this.unit.fromSatoshis(this.remainingAmount).toBTC();
+				qs.size = this.size;
 				qs.image = this.qrimage[0];
 				qs.mode = 4
 				qs.mSize = 0.30;
 				qs.ecLevel = 'Q'
-				return this.main.children('.statusimage').html($('<div class="qr"></div>').qrcode(qs).fadeIn('slow'));
 
+				if(this.qrimage[0].naturalWidth !== 0 && this.qrimage[0].complete) {
+					
+					this.main.find('.statusimage').html($('<div class="qr"></div>').qrcode(qs).fadeIn('slow'));
+				} else {
+					this.qrimage.on('load',()=>{
+						this.main.find('.statusimage').html($('<div class="qr"></div>').qrcode(qs).fadeIn('slow'));
+					});
 
+				} 
+				
+				$(this.main).find('.details .amount').html(this.unit.fromSatoshis(this.remainingAmount).toBTC());
+				$(this.main).find('.details .address').html(this.bufferPublicAddress);
 		}
 		
 		createStatusbars() {
@@ -259,21 +365,19 @@ class DigiPay {
 
 		}
 		
-		
-		getStatus() {
-			return this.statusObject;
-				
-		}
 			
-		setStatus(name,value) {
 			
-			this.statusObject[name] = value;
-		}
+			
+			
+			
 			
 		checkPayment() {
+			
 			this.getTransactions(this.bufferPublicAddress).then((txids)=>{
+		
 				return this.checkTransactions(txids)}).then(
 					results=>{
+					this.firstpayer = results[0].vin[0].addr;
 					this.txcount = results.length;
 					
 					function byBlocktime(a,b) {
@@ -297,13 +401,16 @@ class DigiPay {
 							
 							// send the total wallet of the bufferaddress to the specified address;
 							if(balance > 0) {
-								this.finishPayment(results[0].vin[0].addr).then(result=>{
+								this.finishPayment(this.firstpayer).then(result=>{
 									this.setStatus('txs',results);
 									if(trec > this.amount+this.fee) {
 										var message = 'Payment overpaid, sending the overspend back to last used public key';
 									} else {
 										var message = 'Payment completed';
 									}
+									
+									this.setStatus('status','done');
+									
 									this.showStatus('transactions',message,'ready');
 									this.success('Payment done');
 								});
@@ -319,16 +426,15 @@ class DigiPay {
 						} else {
 							// paid not enough
 							var needed = this.amount+this.fee-trec;
-								this.showStatus('transactions','Transaction underpaid by '+(needed),'pending');
-							// first remake a new payment;	
 								
+							// first remake a new payment;	
+								this.remainingAmount = needed;
+			
+								this.showStatus('transactions','Transaction underpaid by '+(this.remainingAmount),'pending');
 								// recreate the QR
-								this.createQr(	{'text':"digibyte:"+this.bufferPublicAddress+'?amount='+this.unit.fromSatoshis((needed)).toBTC(),
-									'size':this.size
-									}
-								)
+								
+								this.createQr();
 								// reupdate the amount;
-
 								// recheck the address for the amount 
 								this.checkPayment();	
 						}
@@ -364,9 +470,10 @@ class DigiPay {
 			this.setStatus('confirmed',true);
 			// show the status as ready and payment done
 			// replace the QR with a checkmark.
-			var checkimg = $('<img class="check" height="'+this.size+'" width="'+this.size+'" src="img/check.svg"/>').hide();
-			this.main.find('.statusimage').html(checkimg);
-			checkimg.fadeIn('slow');
+		
+			this.setStatus('status','done');
+			this.genStatus();
+			
 			// if there is a callback for succes, execute it.
 			if(this.onSuccess) {
 				this.onSuccess(this.getStatus());
@@ -401,8 +508,10 @@ class DigiPay {
 							
 							
 							
-							that.showLoader();
+							
 							that.showStatus('address','Transactions found on address','ready');
+							that.setStatus('status','busy');
+							that.genStatus();
 							resolve(data.transactions);
 							
 						}
@@ -480,7 +589,11 @@ class DigiPay {
 			}
 		}
 		
+		abort() {
+
+			
 		
+		}
 	
 	
 	
@@ -498,6 +611,7 @@ class DigiPay {
 						destinations[this.address] = (this.amount);
 							
 						if(wval.balanceSat > this.amount+this.fee) {
+							
 							// spare money will be returned to the last sender.
 							destinations[address]= (wval.balanceSat-(this.amount+this.fee));
 							
