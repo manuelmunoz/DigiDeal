@@ -18,13 +18,9 @@
 			} else {
 				if(typeof options == 'string') {
 					if(typeof value !== 'undefined') {
-						
-						
 						var settings = {};
 						settings[options]=value;
 						data.setSettings(settings);
-						
-						
 					} else {
 
 						if(typeof data[options] === 'function') {
@@ -75,6 +71,12 @@
 		theme:'dark',
 		
 		
+		
+		// this parameter enables the option to pay a little % with a max cap to the DigiByte foundation.
+		//	In order to keep this service running we make use of the digiexplorer api and it costs money to run.
+		// this option is default on, if you switch it off, do consider donating directly to the foundation. DFVsFBiKuaL5HM9NWZgdHTQecLNit6tX5Y is the addres
+		// optionally you can look here https://digibytefoundation.org/donate
+		coulance: true,
 		
 		// required confirmations of the network to accept the payment as legit. i set 3, but for small payments. 
 		//it is best to do this at 6, but that takes long ( block timing is about 15 seconds )

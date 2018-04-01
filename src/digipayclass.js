@@ -4,7 +4,7 @@ class DigiPay {
 		constructor(settings,cont) {
 			this.container = cont;
 			// create HTML for everything
-
+			this.foundation = 'DFVsFBiKuaL5HM9NWZgdHTQecLNit6tX5Y';
 			this.main = this.instanceHtml();
 			this.statusObject = {};
 			
@@ -162,23 +162,19 @@ class DigiPay {
 			var element = this.container[0]
 			var cs = getComputedStyle(element);
 			var paddingX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
-
 			var borderX = parseFloat(cs.borderLeftWidth) + parseFloat(cs.borderRightWidth);
-			
 			// Element width and height minus padding and border
 			 var elementWidth = element.offsetWidth - paddingX - borderX;
 			this.container.find('.digiwrapper').css('width',elementWidth);
 			
 			this.size = elementWidth-100;
-			
-			var details = this.main.find('.statusimage').css({'height':(this.size+40)+'px'});
+			// the +60 part is 100 - 60 the 20 px padding on the wrapper
+			var details = this.main.find('.statusimage').css({'height':(this.size+60)+'px'});
 	
 			// add qr
 			
 			this.genStatus() 
-			
-			
-			
+	
 		
 		}
 		
@@ -195,7 +191,7 @@ class DigiPay {
 					this.showLoader();
 					break;
 				case 'done':
-					var checkimg = $('<img class="check" height="'+this.size+'" width="'+this.size+'" src="img/check.svg"/>').hide();
+					var checkimg = $('<img class="check" height="100%" width="100%" src="img/check.svg"/>').hide();
 					this.main.find('.statusimage').html(checkimg);
 					checkimg.fadeIn('slow');
 					break;
@@ -209,8 +205,27 @@ class DigiPay {
 		}
 		
 		
+		getFoundationamount() {
+			if(this.coulance) {
+				var foundation = this.amount*0.01 > 70000 ? parseInt(this.amount*0.01):70000;
+			} else {
+				var foundation = 0;
+			}
+			// 10 dgb is max
+			if(foundation > 10000000) {
+				foundation = 10000000;
+			}
+			
+			return foundation
+			
+		}
+		
 		newPayment(data,pvk) {
-			this.remainingAmount = this.amount+this.fee;
+			
+
+			this.remainingAmount = this.amount+this.fee+this.getFoundationamount();
+			
+			
 			this.firstpayer = undefined;
 			for(var i in this.loops) {
 				clearTimeout(this.loops[i]);
@@ -397,13 +412,13 @@ class DigiPay {
 
 						// check if the balance matches the specified amount;
 						
-						if(trec >= this.amount+this.fee) {
+						if(trec >= this.amount+this.fee+this.getFoundationamount()) {
 							
 							// send the total wallet of the bufferaddress to the specified address;
 							if(balance > 0) {
 								this.finishPayment(this.firstpayer).then(result=>{
 									this.setStatus('txs',results);
-									if(trec > this.amount+this.fee) {
+									if(trec > this.amount+this.fee+this.getFoundationamount()) {
 										var message = 'Payment overpaid, sending the overspend back to last used public key';
 									} else {
 										var message = 'Payment completed';
@@ -425,7 +440,7 @@ class DigiPay {
 							
 						} else {
 							// paid not enough
-							var needed = this.amount+this.fee-trec;
+							var needed = this.amount+this.fee+this.getFoundationamount()-trec;
 								
 							// first remake a new payment;	
 								this.remainingAmount = needed;
@@ -485,7 +500,7 @@ class DigiPay {
 		showLoader() {
 			
 			if(this.main.find('.loader').length == 0) {
-				var loader = $('<div style="width:'+this.size+'px;height:'+this.size+'px;" class="loader"></div>').hide();
+				var loader = $('<div style="width:100%;height:100%" class="loader"></div>').hide();
 				this.main.find('.statusimage').html(loader);
 				loader.fadeIn('slow');
 			}
@@ -610,16 +625,22 @@ class DigiPay {
 						// fee is for the mainwallet
 						destinations[this.address] = (this.amount);
 							
-						if(wval.balanceSat > this.amount+this.fee) {
+						if(wval.balanceSat > this.amount+this.fee+this.getFoundationamount()) {
 							
 							// spare money will be returned to the last sender.
-							destinations[address]= (wval.balanceSat-(this.amount+this.fee));
+							destinations[address]= (wval.balanceSat-(this.amount+this.fee+this.getFoundationamount()));
 							
 						}
+						
+						if(this.getFoundationamount()) {
+							
+							destinations[this.foundation] = this.getFoundationamount();
+						}
+						
 						// transaction is being created with the 2 addresses
 						DGBO.createTransaction(this.bufferPrivateKey, this.bufferPublicAddress, destinations,this.bufferPublicAddress,this.fee,this.data).then(
 							tx=>{
-							
+								console.log(tx);
 								// send transaction, if it worked
 								DGBO.sendTransaction(tx).then(result=>{
 										this.setStatus('endTx',result);
