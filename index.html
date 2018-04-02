@@ -120,10 +120,22 @@
 				
 			}
 			
-			var init = function(e) {
+			
+			var newpay = function(e) {
+				console.log(e);
 				// this makes sure when you refresh accidentaly, it doesnt overwirte the pvk and data
-				history.pushState('', '', '?ppk='+e.privateKey+'&data='+e.data);
-
+				history.pushState('', '', '?ppk='+e.privateKey+'&data='+e.data+'&am='+e.amount+'&addr='+e.address);
+				
+			
+			}
+			
+			var init = function(e) {
+				
+				
+				
+				
+				
+				
 				
 			}
 			
@@ -136,12 +148,13 @@
 			
 			var data =  fgp('data') || makeid(10);
 			
-			var address = 'DRumNN3GxnzGV32ARS7gYG9hvNmeTHGkbP';
+			var address = fgp('addr') || false;
+			
+			var amount = fgp('am') || false;
+			
 			
 			// satoshi
-			var amount = 15000000;
-				
-				
+
 			// returns the digipay class, not a jquery element
 		
 			var dgp = $('#digipay').digipay({
@@ -149,9 +162,23 @@
 				'onSuccess':success,
 				'onStatusUpdate':update,
 				'onInitialize':init,
+				'onNewPayment':newpay,
 				'requiredConfirmations' : 2,
 				'onFail':failed,
 			})
+			
+			if(address && pvk && data && amount) {
+				
+				dgp.setSettings({amount,address});
+				dgp.newPayment(data,pvk);
+			
+			
+			
+			}
+			
+			
+			
+			
 			// there is no pvk, it will generate a new one.
 			
 			

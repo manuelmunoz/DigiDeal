@@ -97,12 +97,14 @@ class DigiPay {
 		}
 		
 		setAmount(amount) {
+			amount = parseInt(amount);
 			if(amount < 70000) {
 				return this.fail('Amount needs to be more than 70000, or it will be rejected in the digiexplorer API');
 			} else {
 				this.amount = amount;
 				
 			}
+			
 			return this;
 		}
 		
@@ -113,6 +115,7 @@ class DigiPay {
 			} else {
 				return this.fail('Address "'+address+'" is not a valid DigiByte public address');
 			}
+
 			return this;
 			
 		}
@@ -228,15 +231,14 @@ class DigiPay {
 		
 		newPayment(data,pvk) {
 			
-
-			this.remainingAmount = this.amount+this.fee+this.getFoundationamount();
-			
+		
 			
 			this.firstpayer = undefined;
 			this.clearTimeouts();
 			this.loops = {};
 			// statusobject is being used to return when an eventhandler is being called
 			this.statusObject = {};
+			
 			this.setStatus('status','checking');
 			// data to be submitted in the blockchain is taken from the GET value 'data', or is taken from the settings object
 
@@ -269,13 +271,18 @@ class DigiPay {
 			// save it to the status object
 			this.setStatus('publicKey',this.bufferPublicAddress)
 				.setStatus('privateKey',this.bufferPrivateKey)
-	
+				.setStatus('address',this.address)
+				.setStatus('amount',this.amount);
 			
 			
+			
+			this.remainingAmount = this.amount+this.fee+this.getFoundationamount();
 			
 			//  save the data to the GET properties in the url, needs to be cleaner
 		
-			
+			if(this.onNewPayment) {
+				this.onNewPayment(this.getStatus());
+			}
 			this.checkPayment()
 				.genPaymentHtml();
 			return this;
