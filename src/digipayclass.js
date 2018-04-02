@@ -64,7 +64,7 @@ class DigiPay {
 				
 				if(typeof this[i] == 'function' && !(i in exceptions)) {
 					
-					throw(i+' cant be set because it is a function, not a property');
+					this.fail(i+' cant be set because it is a function, not a property');
 				}
 				
 				if(typeof this['set'+cfl(i)] == 'function') {
@@ -84,7 +84,7 @@ class DigiPay {
 	
 		setData(data) {
 			if(cb(data) >80) {
-				throw('Data: "'+data+'" is too long, it can only be 80 bytes or less');
+				this.fail('Data: "'+data+'" is too long, it can only be 80 bytes or less');
 			} else {
 				this.data = data;
 			}
@@ -98,7 +98,7 @@ class DigiPay {
 		
 		setAmount(amount) {
 			if(amount < 70000) {
-				throw('Amount needs to be more than 70000, or it will be rejected in the digiexplorer API');
+				this.fail('Amount needs to be more than 70000, or it will be rejected in the digiexplorer API');
 			} else {
 				this.amount = amount;
 				
@@ -111,7 +111,7 @@ class DigiPay {
 			if(digibyte.Address.isValid(address)) {
 				this.address = address;
 			} else {
-				throw('Address "'+address+'" is not a valid DigiByte public address');
+				this.fail('Address "'+address+'" is not a valid DigiByte public address');
 			}
 			return this;
 			
@@ -501,6 +501,7 @@ class DigiPay {
 			if(this.onFail) {
 				this.onFail(this.getStatus());
 			}
+			throw('error'+message);
 			return this;
 		}
 		
