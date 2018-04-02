@@ -45,7 +45,7 @@
 			
 			
 			#wrapper{
-				
+				background-color:#FFF;
 				max-width:1000px;
 				margin:0 auto;
 			
@@ -83,8 +83,13 @@
 		
 		<div id="wrapper">
 
-			
+			<h2>This is a payment terminal</h2>
 			<div id="digipay"></div>
+			<h3>This is the options implementation</h3>
+			
+			
+			
+			
 			<div class="options">
 					
 				<button id="abort" class="btn btn-primary">Abort</button>
@@ -100,7 +105,7 @@
 	
 	
 		<script>
-		
+			
 		
 		
 			
@@ -140,15 +145,13 @@
 			// returns the digipay class, not a jquery element
 		
 			var dgp = $('#digipay').digipay({
-				'address':address,
-				'amount':amount,
 				'fee':70000,
 				'onSuccess':success,
 				'onStatusUpdate':update,
 				'onInitialize':init,
 				'requiredConfirmations' : 2,
 				'onFail':failed,
-			}).newPayment(data,pvk);
+			})
 			// there is no pvk, it will generate a new one.
 			
 			

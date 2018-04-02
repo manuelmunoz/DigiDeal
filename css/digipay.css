@@ -55,7 +55,7 @@
 						border-radius: 50%;
 						vertical-align:top;
 						display:inline-block;
-						animation: spin 2s linear infinite;
+						animation: digispin 2s linear infinite;
 					}
 					
 					.digiwrapper .loader.light{
@@ -63,7 +63,7 @@
 						border-top-color:#002252;
 					}
 
-					@keyframes spin {
+					@keyframes digispin {
 						0% { transform: rotate(0deg); }
 						100% { transform: rotate(360deg); }
 					}
