@@ -64,7 +64,7 @@ class DigiPay {
 				
 				if(typeof this[i] == 'function' && !(i in exceptions)) {
 					
-					this.failed(i+' cant be set because it is a function, not a property');
+					return this.fail(i+' cant be set because it is a function, not a property');
 				}
 				
 				if(typeof this['set'+cfl(i)] == 'function') {
@@ -84,7 +84,7 @@ class DigiPay {
 	
 		setData(data) {
 			if(cb(data) >80) {
-				throw('Data: "'+data+'" is too long, it can only be 80 bytes or less');
+				return this.fail('Data: "'+data+'" is too long, it can only be 80 bytes or less');
 			} else {
 				this.data = data;
 			}
@@ -98,7 +98,7 @@ class DigiPay {
 		
 		setAmount(amount) {
 			if(amount < 70000) {
-				throw('Amount needs to be more than 70000, or it will be rejected in the digiexplorer API');
+				return this.fail('Amount needs to be more than 70000, or it will be rejected in the digiexplorer API');
 			} else {
 				this.amount = amount;
 				
@@ -111,7 +111,7 @@ class DigiPay {
 			if(digibyte.Address.isValid(address)) {
 				this.address = address;
 			} else {
-				throw('Address "'+address+'" is not a valid DigiByte public address');
+				return this.fail('Address "'+address+'" is not a valid DigiByte public address');
 			}
 			return this;
 			
@@ -233,9 +233,7 @@ class DigiPay {
 			
 			
 			this.firstpayer = undefined;
-			for(var i in this.loops) {
-				clearTimeout(this.loops[i]);
-			}
+			this.clearTimeouts();
 			this.loops = {};
 			// statusobject is being used to return when an eventhandler is being called
 			this.statusObject = {};
@@ -283,7 +281,12 @@ class DigiPay {
 			return this;
 		}
 		
-		
+		clearTimeouts() {
+			for(var i in this.loops) {
+				clearTimeout(this.loops[i]);
+			}
+			
+		}
 		
 		genPaymentHtml() {
 	
@@ -480,13 +483,13 @@ class DigiPay {
 						
 					},
 					error=>{
-						this.fail(error)}
+						return this.fail(error)}
 					);
 
 				},
 				error=>{
 					
-					this.fail(error);
+					return this.fail(error);
 					
 				}
 			);
@@ -501,6 +504,8 @@ class DigiPay {
 			if(this.onFail) {
 				this.onFail(this.getStatus());
 			}
+			this.clearTimeouts();
+			throw('error'+message);
 			return this;
 		}
 		
@@ -652,6 +657,7 @@ class DigiPay {
 		}
 		
 		abort() {
+			this.clearTimeouts();
 			return new Promise((resolve, reject) => {
 				DGBO.getWalletValue(this.bufferPublicAddress).then(
 					wval=>{
