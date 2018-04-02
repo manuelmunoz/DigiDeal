@@ -27,7 +27,7 @@
 				/* statusimage related */
 			
 				.digiwrapper .statusimage{
-					padding:20px;
+					
 					text-align:center
 				}
 				
@@ -50,8 +50,8 @@
 						}
 					
 					.digiwrapper .loader {
-						border: 16px solid #f3f3f3; /* Light grey */
-						border-top: 16px solid rgb(0, 102, 204); /* Blue */
+						border: 32px solid #f3f3f3; /* Light grey */
+						border-top: 32px solid rgb(0, 102, 204); /* Blue */
 						border-radius: 50%;
 						vertical-align:top;
 						display:inline-block;

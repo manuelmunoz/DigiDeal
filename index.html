@@ -78,7 +78,8 @@
 			
 			<div id="digipay"></div>
 			<div class="options">
-				
+					
+				<button id="abort" class="btn btn-primary">Abort</button>
 				<button id="newtx" class="btn btn-primary">New tx</button>
 				<input type="text" id="address" placeholder="Insert DigiByte-address"/>
 				<input type="number" id="amount" placeholder="Insert amount in Satoshis"/>
@@ -159,7 +160,11 @@
 			});
 				
 				
-				
+			$('#abort').on('click',function() {
+			
+				dgp.abort();
+			
+			});
 				
 				
 				
