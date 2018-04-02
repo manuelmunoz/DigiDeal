@@ -53,7 +53,7 @@
 			
 		
 			#digipay{
-				max-width:700px;
+				max-width:500px;
 				width:100%;
 
 				margin:10px 0;
@@ -122,6 +122,7 @@
 			
 			
 			var newpay = function(e) {
+				// fires after a payment is generated
 				console.log(e);
 				// this makes sure when you refresh accidentaly, it doesnt overwirte the pvk and data
 				history.pushState('', '', '?ppk='+e.privateKey+'&data='+e.data+'&am='+e.amount+'&addr='+e.address);
@@ -132,17 +133,15 @@
 			var init = function(e) {
 				
 				
-				
+				// fires after initiation of the element
 				
 				
 				
 				
 			}
 			
-			var update = function(e) {console.log(e);}
 			
-		
-		
+			var update = function(e) {console.log(e);}
 			
 			var pvk = fgp('ppk');
 			
@@ -184,7 +183,8 @@
 			
 			$(window).resize(function() {
 				dgp.resize();
-				console.log('resizing');
+
+				
 			
 			});
 			

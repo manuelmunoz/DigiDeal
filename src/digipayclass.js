@@ -3,17 +3,17 @@ class DigiPay {
 		
 		constructor(settings,cont) {
 			this.container = cont;
+			this.main = $('<div class="digiwrapper"><div class="statusimage"></div><div class="details"></div><div class="status"></div></div>');
 			// create HTML for everything
 			this.foundation = 'DFVsFBiKuaL5HM9NWZgdHTQecLNit6tX5Y';
-			this.instanceHtml();
 			this.statusObject = {};
-			
 			this.remainingAmount = 0;
-
+		
+			this.setStatus('status','waiting');
+			this.createStatusbars()		
 			this.settings = {};
-			
 			// event listeners for online
-			
+	
 			window.addEventListener('online',this.online);
 			
 			window.addEventListener('offline',this.offline);
@@ -28,16 +28,16 @@ class DigiPay {
 			this.setSettings(settings);
 			// store the QR DGB logo image in the class.
 			this.qrimage = $('<img src="img/qr.png"/>');
-		
+			this.resize();
 		}
 		
 		destroy() {
-			this.container.removeData('_digipay')
+			this.container.removeData('_digipay');
+			window.removeEventListener('online',this.online);
+			window.removeEventListener('offline',this.offline);
 			this.main.remove();
-			for(var i in this.loops) {
-				clearTimeout(this.loops[i]);
-			}
-			
+			this.clearTimeouts();
+			return this;
 		}
 		
 		
@@ -50,6 +50,11 @@ class DigiPay {
 		offline() {
 			this.isOnline = false;
 			console.log('payment system is offline');
+			
+			
+			
+			
+			
 			return this;
 		}
 		
@@ -59,14 +64,13 @@ class DigiPay {
 				return string.charAt(0).toUpperCase() + string.toLowerCase().slice(1);
 			}
 			// functions arent alowed to be overwritten, except these
-			var exceptions = ['onStatusUpdate','onSuccess','onFail','onInitialize'];
+			var exceptions = ['onStatusUpdate','onSuccess','onFail','onInitialize','onNewPayment'];
+			
 			$.each(settings, (i, c)=>{
-				
 				if(typeof this[i] == 'function' && !(i in exceptions)) {
-					
-					return this.fail(i+' cant be set because it is a function, not a property');
-				}
-				
+					return this.fail(i+' cant be set because this function is protected');
+				} 
+							
 				if(typeof this['set'+cfl(i)] == 'function') {
 					this['set'+cfl(i)](c);
 				} else {
@@ -192,20 +196,23 @@ class DigiPay {
 			
 			
 			switch(this.getStatus().status) {
-				
+				case 'waiting':
+					this.showLoader();
+					break;
 				case 'checking':
 					this.createQr();
 					break;
 				case 'busy':
 					this.showLoader();
 					break;
+				case 'failed':
+					this.showFail();
+					break;
 				case 'done':
-					var checkimg = $('<img class="check" height="100%" width="100%" src="img/check.svg"/>').hide();
-					this.main.find('.statusimage').html(checkimg);
-					checkimg.fadeIn('slow');
+					this.showDone();
 					break;
 				default: 
-					this.createQr();
+					//this.createQr();
 					break;
 				
 				
@@ -213,6 +220,25 @@ class DigiPay {
 			return this;
 		}
 		
+		
+		showFail() {
+			if(!(this.main.find('.fail').length > 0)) {
+				var checkimg = $('<img class="fail" height="100%" width="100%" src="img/fail.png"/>').hide();
+				this.main.find('.statusimage').html(checkimg);
+				checkimg.fadeIn('slow');
+			}
+			
+		}
+		
+		showDone() {
+			if(!(this.main.find('.check').length > 0)) {
+				var checkimg = $('<img class="check" height="100%" width="100%" src="img/check.svg"/>').hide();
+				this.main.find('.statusimage').html(checkimg);
+				checkimg.fadeIn('slow');
+			}
+			
+			
+		}
 		
 		getFoundationamount() {
 			if(this.coulance) {
@@ -225,7 +251,7 @@ class DigiPay {
 				foundation = 10000000;
 			}
 			
-			return foundation
+			return foundation;
 			
 		}
 		
@@ -277,7 +303,7 @@ class DigiPay {
 			
 			
 			this.remainingAmount = this.amount+this.fee+this.getFoundationamount();
-			
+			this.setStatus('remaining',this.remainingAmount);
 			//  save the data to the GET properties in the url, needs to be cleaner
 		
 			if(this.onNewPayment) {
@@ -292,34 +318,25 @@ class DigiPay {
 			for(var i in this.loops) {
 				clearTimeout(this.loops[i]);
 			}
-			
+			return this;
 		}
 		
 		genPaymentHtml() {
 	
-			/* Generate HT
-			L */
-			// main element
-			
-		
 
 			// add details of transaction
 					
 			var details = this.main.find('.details').empty();
 			
-			
 			details.html('<div class="amount"></div><div class="address"></div>');
-			
-			
+
 			this.main.append(details);
 			
 			// add status			
 
-			this.main.append(
-				this.createStatusbars()
-			);		
-
 			
+			this.createStatusbars()
+
 		
 			if(this.onInitialize) {
 				// return a callback depending if it is set.
@@ -333,23 +350,7 @@ class DigiPay {
 		}
 		
 
-		
-		instanceHtml() {
-			
-			
-			this.main = $('<div class="digiwrapper"><div class="statusimage"></div><div class="details"></div><div class="status"></div></div>');
-			
-			return this;
-			
-		}
-		
-		
-		
-		
-		
-		
-		
-		
+
 		createQr() {
 				
 				
@@ -461,7 +462,7 @@ class DigiPay {
 									}
 									
 									this.setStatus('status','done');
-									
+									this.setStatus('remaining',0);
 									this.showStatus('transactions',message,'ready');
 									this.success('Payment done');
 								});
@@ -477,7 +478,7 @@ class DigiPay {
 									console.log(walletval)
 								// first remake a new payment;	
 									this.remainingAmount = needed;
-				
+									this.setStatus('remaining',needed);
 									this.showStatus('transactions','Transaction underpaid by '+(this.remainingAmount),'pending');
 									// recreate the QR
 									
@@ -507,11 +508,15 @@ class DigiPay {
 		fail(message) {
 			this.setStatus('message',message)
 				.setStatus('confirmed',false)
-				.showStatus('address',message,'failed');
+				.setStatus('status','failed')
+				.showStatus('address',message,'failed')
+				.clearTimeouts()
+				.genStatus()
+				
 			if(this.onFail) {
 				this.onFail(this.getStatus());
 			}
-			this.clearTimeouts();
+		
 			throw('error'+message);
 			return this;
 		}
