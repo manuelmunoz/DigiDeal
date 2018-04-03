@@ -113,8 +113,8 @@
 				</div>
 			</div>	
 			<h3>Initiation</h3>
-			<pre>
-	
+			<pre><code>
+		
 var dgp = $('#digipay').digipay({
 	'fee':70000,
 	
@@ -128,10 +128,11 @@ var dgp = $('#digipay').digipay({
 	
 	'requiredConfirmations' : 2,
 	'onFail':failed,
-})
+})			</code>
 			</pre>
 			<h3>Making a new payment</h3>
 			<pre>
+			<code>
 $('#newtx').on('click',function() {
 	var namount = digibyte.Unit.fromBTC(
 		parseFloat($('#amount').val())).toSatoshis() 
@@ -143,7 +144,7 @@ $('#newtx').on('click',function() {
 		address:$('#address').val()
 	}).newPayment(makeid(10));
 	// id is optional.
-});
+});			</code>
 			</pre>	
 			<h3>Introduction</h3>
 			<p>
