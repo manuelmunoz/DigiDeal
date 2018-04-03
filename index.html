@@ -83,11 +83,34 @@
 		
 		<div id="wrapper">
 
-			<h2>This is a payment terminal</h2>
+			<h2>Payment terminal</h2>
+			<p>The blue element underneath is just a div with an id, that is instantiated by the DigiPay plugin</p>
+			
 			<div id="digipay"></div>
+			<code>
+				var dgp = $('#digipay').digipay({
+					'fee':70000,
+					'onSuccess':success,
+					'onStatusUpdate':update,
+					'onInitialize':init,
+					'onNewPayment':newpay,
+					'requiredConfirmations' : 2,
+					'onFail':failed,
+				})
+			</code>
 			<h3>This is the options implementation</h3>
 			
-			
+			<p>It features 2 buttons, one generates a new transaction with the DigiByte Public key as destination and the amount in DigiBytes, not sathoshis.</p>
+			<code>
+				$('#newtx').on('click',function() {
+					var namount = digibyte.Unit.fromBTC(parseFloat($('#amount').val())).toSatoshis() || parseInt(Math.random()*100000+70000);
+					$('#digipay').digipay({
+						amount:namount,
+						address:$('#address').val()
+					}).newPayment(makeid(10));
+					// id is optional.
+				});
+			</code>	
 			
 			
 			<div class="options">
