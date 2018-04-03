@@ -122,8 +122,6 @@
 			<pre><code>
 		
 var dgp = $('#digipay').digipay({
-	'fee':70000,
-	
 	// these functions event 
 	// handlers can be changed
 	'onSuccess':success,
@@ -131,8 +129,7 @@ var dgp = $('#digipay').digipay({
 	'onInitialize':init,
 	'onNewPayment':newpay,
 	//
-	
-	'requiredConfirmations' : 2,
+
 
 })			</code></pre>
 			<h3>Making a new payment</h3>
@@ -223,13 +220,10 @@ $('#newtx').on('click',function() {
 			// returns the digipay class, not a jquery element
 		
 			var dgp = $('#digipay').digipay({
-				'fee':70000,
 				'onSuccess':success,
 				'onInitialize':init,
 				'onNewPayment':newpay,
-				'onFail':failed,
-				'requiredConfirmations' : 2,
-	
+				'onFail':failed,	
 			})
 			
 			if(address && pvk && data && amount) {
