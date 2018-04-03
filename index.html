@@ -80,7 +80,7 @@
  			pre{
 				margin:0 auto;
 				display:block;
-				max-width:400px;
+				max-width:600px;
 				text-align:left;
 			}
 			
@@ -105,7 +105,7 @@
 					<input type="number" step="0.0001" id="amount" placeholder="Insert amount in DGBs e.g. 1,04 for 1,04DGB"/>
 				</div>
 			</div>	
-			
+			<h3>Initiation</h3>
 			<pre>
 	
 var dgp = $('#digipay').digipay({
@@ -123,13 +123,11 @@ var dgp = $('#digipay').digipay({
 	'onFail':failed,
 })
 			</pre>
-			
+			<h3>Making a new payment</h3>
 			<pre>
 $('#newtx').on('click',function() {
 	var namount = digibyte.Unit.fromBTC(
-		parseFloat(
-			$('#amount').val())
-		).toSatoshis() 
+		parseFloat($('#amount').val())).toSatoshis() 
 		|| 
 		parseInt(Math.random()*100000+70000
 	);
