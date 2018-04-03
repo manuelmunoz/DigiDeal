@@ -197,7 +197,8 @@ class DigiPay {
 			
 			switch(this.getStatus().status) {
 				case 'waiting':
-					this.showLoader();
+		
+					this.showWait()
 					break;
 				case 'checking':
 					this.createQr();
@@ -220,6 +221,25 @@ class DigiPay {
 			return this;
 		}
 		
+		showWait() {
+			
+			this.showStatus('transactions','Waiting for transaction input');
+			this.showLoader();
+			
+			
+			
+		}
+		
+				
+		showLoader() {
+			
+			if(this.main.find('.loader').length == 0) {
+				var loader = $('<div style="width:100%;height:100%" class="loader"></div>').hide();
+				this.main.find('.statusimage').html(loader);
+				loader.fadeIn('slow');
+			}
+			return this;
+		}
 		
 		showFail() {
 			if(!(this.main.find('.fail').length > 0)) {
@@ -560,16 +580,7 @@ class DigiPay {
 			
 			return this;
 		}
-		
-		showLoader() {
-			
-			if(this.main.find('.loader').length == 0) {
-				var loader = $('<div style="width:100%;height:100%" class="loader"></div>').hide();
-				this.main.find('.statusimage').html(loader);
-				loader.fadeIn('slow');
-			}
-			return this;
-		}
+
 		
 		getTransactions(address) {
 			var url = 'https://digiexplorer.info/api/addr/'+address;
@@ -656,14 +667,8 @@ class DigiPay {
 		}
 		showStatus(name,message,classname) {
 			var el = this.main.find('.status .'+name+' .inner').html(message)
-			
-			
 			if(classname) {
 				el.addClass(classname);
-			}
-			
-			if(this.onStatusUpdate) {
-				this.onStatusUpdate({name,message,'flag':classname});
 			}
 			return this;
 		}
