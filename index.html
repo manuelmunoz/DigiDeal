@@ -94,6 +94,18 @@
 			<p>The blue element underneath is just a div with an id, that is instantiated by the DigiPay plugin</p>
 			
 			<div id="digipay"></div>
+			<div class="options">
+					
+				<button id="abort" class="btn btn-primary">Abort</button>
+				<button id="newtx" class="btn btn-primary">New tx</button>
+				<div>
+					<input type="text" id="address" placeholder="Insert DigiByte-address"/>
+				</div>
+				<div>
+					<input type="number" step="0.0001" id="amount" placeholder="Insert amount in DGBs e.g. 1,04 for 1,04DGB"/>
+				</div>
+			</div>	
+			
 			<pre>
 	
 var dgp = $('#digipay').digipay({
@@ -111,9 +123,7 @@ var dgp = $('#digipay').digipay({
 	'onFail':failed,
 })
 			</pre>
-			<h3>This is the options implementation</h3>
 			
-			<p>It features 2 buttons, one generates a new transaction with the DigiByte Public key as destination and the amount in DigiBytes, not sathoshis.</p>
 			<pre>
 $('#newtx').on('click',function() {
 	var namount = digibyte.Unit.fromBTC(
@@ -132,17 +142,7 @@ $('#newtx').on('click',function() {
 			</pre>	
 			
 			
-			<div class="options">
-					
-				<button id="abort" class="btn btn-primary">Abort</button>
-				<button id="newtx" class="btn btn-primary">New tx</button>
-				<div>
-					<input type="text" id="address" placeholder="Insert DigiByte-address"/>
-				</div>
-				<div>
-					<input type="number" step="0.0001" id="amount" placeholder="Insert amount in DGBs e.g. 1,04 for 1,04DGB"/>
-				</div>
-			</div>	
+			
 		</div>
 	
 	
