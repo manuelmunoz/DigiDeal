@@ -54,11 +54,10 @@
 			// store the class in the element for future use
 			$(this).data('_digipay',dgp);
 		
-
+			return dgp;
 			
 		}
 		
-		return dgp;
 		
 		
 	};
@@ -80,7 +79,7 @@
 		
 		// required confirmations of the network to accept the payment as legit. i set 3, but for small payments. 
 		//it is best to do this at 6, but that takes long ( block timing is about 15 seconds )
-		requiredConfirmations : 3,
+		requiredConfirmations : 2,
 		
 		
 		

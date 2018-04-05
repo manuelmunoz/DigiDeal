@@ -1,10 +1,6 @@
 
 class DGBO {
-		
-		
 
-
-		
 		static getMarketValue() {
 			return new Promise((resolve, reject) => {
 				$.getJSON(DGBO.marketUrl, function( data ) {
@@ -31,8 +27,9 @@ class DGBO {
 		}
 		
 		static getWalletValue(address) {
+			var that = this;
 			return new Promise((resolve, reject) => {
-				$.getJSON( DGBO.explorerUrl + "/api/addr/" + address, (data) => {
+				$.getJSON(DGBO.explorerUrl + "/api/addr/" + address, (data) => {
 					
 					resolve(data);
 				}).error(function() {
@@ -45,7 +42,20 @@ class DGBO {
 		
 		
 		
-	
+		static createAndSendTransaction(sourcePrivateKey,sourceAddress,destinations,changeAddress,fee,data) {
+			
+			DGBO.createTransaction(sourcePrivateKey,sourceAddress,destinations,changeAddress,fee,data).then(tx=>{
+				DGBO.sendTransaction(tx).then(res=>{
+					resolve(res);
+				},error=>{
+					reject(error);
+				})
+			},error=>{
+				reject(error);
+			});
+			
+			
+		}
 		
 	
 		static createTransaction(sourcePrivateKey, sourceAddress, destinations, changeAddress,fee,data) {
@@ -166,7 +176,7 @@ class DGBO {
 		
 		
 		static getTxData(txid) {
-			var url = this.explorerUrl+'/api/tx/'+txid;
+			var url = DGBO.explorerUrl+'/api/tx/'+txid;
 			
 			return new Promise((resolve, reject) => {
 
@@ -208,14 +218,16 @@ class DGBO {
 			})
 			
 			function OPfromtx(tx) {
-				var data = (tx.vout[tx.vout.length-1].scriptPubKey.asm) || false;
-				if(data && data.substr(0,9) == 'OP_RETURN') {
-					
-					return hex2a(data.substr(10));
-				} else {
-					return false;
+				for(var i in tx.vout) {
+					var vout = tx.vout[i];
+					var data = vout.scriptPubKey.asm || false;
+					if(data && data.substr(0,9) == 'OP_RETURN') {
+						
+						return hex2a(data.substr(10));
+					}
 				}
 				
+				return false
 			}
 			function hex2a(hexx) {
 				var hex = hexx.toString();//force conversion

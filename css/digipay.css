@@ -54,7 +54,7 @@
 						border-top: 32px solid rgb(0, 102, 204); /* Blue */
 						border-radius: 50%;
 						vertical-align:top;
-						display:inline-block;
+						margin:0 auto;
 						animation: digispin 2s linear infinite;
 					}
 					
@@ -69,38 +69,17 @@
 					}
 
 					
-					
-				/* statustext related */
-					
-				.digiwrapper .status .statusbar{
-					width:100%;
-					font-weight:bold;
-					text-align:center;
-					margin:5px 0;
+				.digiwrapper .details{
 					border-radius:10px;
-					border:solid 2px #333;
-					overflow:hidden;
-				   
-				}
-					.digiwrapper .status .statusbar .inner{
-						padding:5px;
-						text-transform: uppercase;
-						background-color:#FFF;
-						color:#000;
-						line-height:30px;
-						height:40px
-					}
+					color:#000;
+					text-align:center;
 					
-					.digiwrapper .status .statusbar .inner.pending{
-						background-color:rgb(0, 102, 204);
-						color:#FFF;
-					}
-					.digiwrapper .status .statusbar .inner.ready{
-						background-color:#090;
-							color:#FFF;
-					}
-					.digiwrapper .status .statusbar .inner.failed{
-						background-color:#900;
-							color:#FFF;
-					}
-				
+					height:40px;
+					font-size:16px;
+					font-weight:bold;
+					line-height:30px;
+					margin-top:6px;
+					padding:5px;
+					background-color:#FFF;
+					
+				}

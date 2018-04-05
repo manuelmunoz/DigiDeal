@@ -23,17 +23,9 @@
 		<script type="text/javascript" src="src/digiObj.js"></script>
 		<script type="text/javascript" src="src/jquery.digipay.js"></script>
 		
-		<link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
 		<link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32x32.png">
 		<link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png">
-		<link rel="manifest" href="img/site.webmanifest">
-		<link rel="mask-icon" href="img/safari-pinned-tab.svg" color="#5bbad5">
-		<link rel="shortcut icon" href="img/favicon.ico">
-		<meta name="msapplication-TileColor" content="#da532c">
-		<meta name="msapplication-config" content="img/browserconfig.xml">
-		<meta name="theme-color" content="#ffffff">
-		
-		
+
 		
 		
 		<style>
@@ -53,7 +45,7 @@
 				<button id="abort" class="btn btn-primary">Abort</button>
 				<button id="newtx" class="btn btn-primary">New tx</button>
 				<div>
-					<span>E.g. the Digibyte foudnation addres: DFVsFBiKuaL5HM9NWZgdHTQecLNit6tX5Y</span>
+					<span>E.g. the Digibyte foundation addres: DFVsFBiKuaL5HM9NWZgdHTQecLNit6tX5Y</span>
 					<input type="text" id="address" placeholder="Insert DigiByte-address"/>
 				</div>
 				<div>
@@ -61,8 +53,7 @@
 				</div>
 			</div>	
 			<h3>Initiation</h3>
-			<pre><code>
-		
+<pre><code>
 var dgp = $('#digipay').digipay({
 	// these functions event 
 	// handlers can be changed
@@ -71,16 +62,13 @@ var dgp = $('#digipay').digipay({
 	'onInitialize':init,
 	'onNewPayment':newpay,
 	//
-
-
-})			</code></pre>
+})			
+</code></pre>
 			<h3>Making a new payment</h3>
-			<pre><code>
+<pre><code>
 $('#newtx').on('click',function() {
 	var namount = digibyte.Unit.fromBTC(
 		parseFloat($('#amount').val())).toSatoshis() 
-		|| 
-		parseInt(Math.random()*100000+70000
 	);
 	
 	$('#digipay').digipay({
@@ -89,7 +77,7 @@ $('#newtx').on('click',function() {
 	}).newPayment(makeid(10));
 	// id is optional.
 });			
-				</code></pre>	
+</code></pre>	
 			<h3>Introduction</h3>
 			<p>
 				This payment plugin makes it possible to accept DigiByte payments with only an internet connection. All you need is a public address and an amount. If you fill in an amount and address it will create an interface that will check if the payment has come through and it will redirect that payment to the specified address. This way the seller can check if the specified amount has been sent without the need to install a wallet on the device. Imagine being a seller with just a tablet or a smartphone. You sell your products and instead of accepting FIAT, you accept DigiByte. Because these payments require so little time, the transaction will be done within approximately 30 seconds on average. 
@@ -110,124 +98,6 @@ $('#newtx').on('click',function() {
 		</div>
 	
 	
-		<script>
-			
-		
-		
-			
-	
-			var success = function (e) {
-				console.log('succes',e);
-				
-				DGBO.getOpData(e.endTx.txid).then(result=>{console.log(result)});
-			}
-			var failed = function(e) {
-				console.log('fail',e);
-				
-			}
-			
-			
-			var newpay = function(e) {
-				// fires after a payment is generated
-				console.log(e);
-				// this makes sure when you refresh accidentaly, it doesnt overwirte the pvk and data
-				history.pushState('', '', '?ppk='+e.privateKey+'&data='+e.data+'&am='+e.amount+'&addr='+e.address);
-				
-			
-			}
-			
-			var init = function(e) {
-				
-				
-				// fires after initiation of the element
-				
-				
-				
-				
-			}
-			
-			
-			
-			var pvk = fgp('ppk');
-			
-			var data =  fgp('data') || makeid(10);
-			
-			var address = fgp('addr') || false;
-			
-			var amount = fgp('am') || false;
-			
-			
-			// satoshi
-
-			// returns the digipay class, not a jquery element
-		
-			var dgp = $('#digipay').digipay({
-				'onSuccess':success,
-				'onInitialize':init,
-				'onNewPayment':newpay,
-				'onFail':failed,	
-			})
-			
-			if(address && pvk && data && amount) {
-				
-				dgp.setSettings({amount,address});
-				dgp.newPayment(data,pvk);
-			
-			
-			
-			}
-			
-			
-			
-			
-			// there is no pvk, it will generate a new one.
-			
-			
-			$(window).resize(function() {
-				dgp.resize();
-
-				
-			
-			});
-			
-
-			
-			
-			$('#newtx').on('click',function() {
-				var namount = digibyte.Unit.fromBTC(parseFloat($('#amount').val())).toSatoshis() || parseInt(Math.random()*100000+70000);
-				$('#digipay').digipay({
-					amount:namount,
-					address:$('#address').val()
-				}).newPayment(makeid(10));
-				
-			});
-				
-				
-			$('#abort').on('click',function() {
-			
-				dgp.abort();
-			
-			});
-				
-				
-				
-				
-				
-			function makeid(l){ var t = "";var p = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";for(var i=0;i<l;i++){t+=p.charAt(Math.floor(Math.random()*p.length))};return t;}
-				
-			function fgp(parameterName) {
-			var result = null,
-				tmp = [];
-			var items = location.search.substr(1).split("&");
-			for (var index = 0; index < items.length; index++) {
-				tmp = items[index].split("=");
-				if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1]);
-			}
-			return result;}
-			$('pre code').each(function(i, block) {
-				hljs.highlightBlock(block);
-			});
-
-		</script>
+		<script type="text/javascript" src="js/example.js"></script>
 	</body>
 </html>
