@@ -19,8 +19,6 @@
 				console.log(e);
 				// this makes sure when you refresh accidentaly, it doesnt overwirte the pvk and data
 				history.pushState('', '', '?ppk='+e.privateKey+'&data='+e.data+'&am='+e.amount+'&addr='+e.address);
-				
-			
 			}
 			
 			var init = function(e) {
@@ -34,6 +32,12 @@
 			}
 			
 			
+			var dgp = $('#digipay').digipay({
+				'onSuccess':success,
+				'onInitialize':init,
+				'onNewPayment':newpay,
+				'onFail':failed,	
+			})
 			
 			var pvk = fgp('ppk');
 			
@@ -48,12 +52,6 @@
 
 			// returns the digipay class, not a jquery element
 		
-			var dgp = $('#digipay').digipay({
-				'onSuccess':success,
-				'onInitialize':init,
-				'onNewPayment':newpay,
-				'onFail':failed,	
-			})
 			
 			if(address && pvk && data && amount) {
 				
