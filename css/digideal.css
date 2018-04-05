@@ -1,0 +1,85 @@
+@font-face {
+			font-family: avenir_next;
+			src: url(../fonts/AvenirNextLTPro-Demi.woff);
+		}
+			/* rgb(0, 102, 204); ;
+			
+			
+				/*digiwrapper*/
+			.digiwrapper{
+				color:#FFF;
+				background-color:#002252;
+				font-family:"avenir_next", sans-serif;
+				
+				width:100%;
+				padding:20px
+			}
+			
+			.digiwrapper.dark{
+				background-color:#002252;
+				
+			}
+			.digiwrapper.light{
+				background-color:rgb(0, 102, 204);
+				
+			}
+			
+				/* statusimage related */
+			
+				.digiwrapper .statusimage{
+					
+					text-align:center
+				}
+				
+				
+					.digiwrapper .qr{
+						display:inline-block;
+						vertical-align:top;
+						overflow:hidden;
+
+						
+					}
+						.digiwrapper .qr canvas{
+							padding:5px;
+							background-color:#FFF;
+							display:inline-block;
+							border-radius:3px;
+							border:#000 2px solid;							
+							vertical-align:top;
+							
+						}
+					
+					.digiwrapper .loader {
+						border: 32px solid #f3f3f3; /* Light grey */
+						border-top: 32px solid rgb(0, 102, 204); /* Blue */
+						border-radius: 50%;
+						vertical-align:top;
+						margin:0 auto;
+						animation: digispin 2s linear infinite;
+					}
+					
+					.digiwrapper .loader.light{
+						
+						border-top-color:#002252;
+					}
+
+					@keyframes digispin {
+						0% { transform: rotate(0deg); }
+						100% { transform: rotate(360deg); }
+					}
+
+					
+				.digiwrapper .details{
+					border-radius:10px;
+					color:#000;
+					text-align:center;
+					
+					height:40px;
+					font-size:16px;
+					font-weight:bold;
+					line-height:30px;
+					margin-top:6px;
+					padding:5px;
+					background-color:#FFF;
+					
+				}

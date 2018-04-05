@@ -5,7 +5,7 @@
 		<title>Payment</title>
 		<meta name="viewport" content="width=device-width, user-scalable=no" />
 		<link href="libs/bs/bootstrap.css" rel="stylesheet">
-		<link href="css/digipay.css" rel="stylesheet">
+		<link href="css/digideal.css" rel="stylesheet">
 		<link href="css/style.css" rel="stylesheet">
 		<link href="css/idea.css" rel="stylesheet">
 		<script type="text/javascript" src="libs/dgb/digibyte.js"></script>
@@ -19,9 +19,9 @@
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 		<script type="text/javascript" src="libs/jq/jquery.min.js"></script>
 		<script type="text/javascript" src="src/jquery.qr.js"></script>
-		<script type="text/javascript" src="src/digipayclass.js"></script>
+		<script type="text/javascript" src="src/digidealclass.js"></script>
 		<script type="text/javascript" src="src/digiObj.js"></script>
-		<script type="text/javascript" src="src/jquery.digipay.js"></script>
+		<script type="text/javascript" src="src/jquery.digideal.js"></script>
 		
 		<link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32x32.png">
 		<link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png">
@@ -39,7 +39,7 @@
 
 			<h2>Payment terminal</h2>
 			
-			<div id="digipay"></div>
+			<div id="DigiDeal"></div>
 			<div class="options">
 					
 				<button id="abort" class="btn btn-primary">Abort</button>
@@ -67,8 +67,8 @@
 			</p>
 			<h3>Initiation</h3>
 <pre><code>
-// .digipay() returns the DigiPay class instance, not a $(html) object
-var dgp = $('#digipay').digipay({
+// .DigiDeal() returns the DigiDeal class instance, not a $(html) object
+var dgp = $('#DigiDeal').DigiDeal({
 	// these functions event 
 	// handlers can be changed
 	'onSuccess':success,
@@ -85,7 +85,7 @@ $('#newtx').on('click',function() {
 		parseFloat($('#amount').val())).toSatoshis() 
 	);
 	
-	$('#digipay').digipay({
+	$('#DigiDeal').DigiDeal({
 		amount:namount,
 		address:$('#address').val()
 	}).newPayment(makeid(10));

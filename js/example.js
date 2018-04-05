@@ -32,7 +32,7 @@
 			}
 			
 			
-			var dgp = $('#digipay').digipay({
+			var dgp = $('#DigiDeal').DigiDeal({
 				'onSuccess':success,
 				'onInitialize':init,
 				'onNewPayment':newpay,
@@ -40,26 +40,15 @@
 			})
 			
 			var pvk = fgp('ppk');
-			
 			var data =  fgp('data') || makeid(10);
-			
 			var address = fgp('addr') || false;
-			
 			var amount = fgp('am') || false;
-			
-			
-			// satoshi
-
-			// returns the digipay class, not a jquery element
-		
 			
 			if(address && pvk && data && amount) {
 				
 				dgp.setSettings({amount,address});
 				dgp.newPayment(data,pvk);
-			
-			
-			
+
 			}
 			
 			
@@ -80,7 +69,7 @@
 			
 			$('#newtx').on('click',function() {
 				var namount = digibyte.Unit.fromBTC(parseFloat($('#amount').val())).toSatoshis();
-				$('#digipay').digipay({
+				$('#DigiDeal').DigiDeal({
 					amount:namount,
 					address:$('#address').val()
 				}).newPayment(makeid(10));
