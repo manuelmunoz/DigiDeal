@@ -1,4 +1,4 @@
-# DigiPay
+# DigiDeal
 DigiByte javascript/jQuery client side  payment method.
 
 This Jquery plugin makes it that people can accept DigiByte payments on their website, tablet, and or other webinterface supporting device. 
