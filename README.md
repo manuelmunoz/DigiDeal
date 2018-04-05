@@ -11,4 +11,4 @@ It generates a QR and snifs the DigiExplorer website te check if the payment has
   The downside to clientside payments is that security pitfalls need to be covered by the user and developer that want to use this implementation. I personally have NO responsibility regarding fraudulent use and/or improper use.
   A documentation will follow with additional information regarding the input parameters and use of this software. 
   
-  An example can be found at https://beatnutnl.github.io/DigiPay
+  An example can be found at https://beatnutnl.github.io/DigiDeal
