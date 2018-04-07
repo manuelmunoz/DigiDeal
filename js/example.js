@@ -1,8 +1,25 @@
 	
-		
+			var cv = new DigiConverter();
 		
 			
-	
+			var cs = cv.getCurrencies();
+			
+			
+			for(var i in cs) {
+				var option = $('<option>'+cs[i]+'</option>');
+				if(cs[i] == 'EUR') {
+					option.attr('selected',true);
+				}
+				$('#coptions').append(option);
+				
+			}
+
+			
+			
+			
+			
+			
+			
 			var success = function (e) {
 				console.log('succes',e);
 				
@@ -68,12 +85,18 @@
 			
 			
 			$('#newtx').on('click',function() {
-				var namount = digibyte.Unit.fromBTC(parseFloat($('#amount').val())).toSatoshis();
-				$('#DigiDeal').DigiDeal({
-					amount:namount,
-					address:$('#address').val()
-				}).newPayment(makeid(10));
+				var cur = ($('#coptions').find('option:selected').text());
+				var amount = parseFloat($('#currency').val());
 				
+				
+				cv.to(amount,cur).then(res=>{
+						var namount = digibyte.Unit.fromBTC(parseFloat(res)).toSatoshis();
+						$('#DigiDeal').DigiDeal({
+							amount:namount,
+							address:$('#address').val()
+						}).newPayment(makeid(10));
+				});
+
 			});
 				
 				

@@ -13,11 +13,13 @@
 			
 			
 			var digibyte = require('digibyte');
-
+			
 		
 		</script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+
 		<script type="text/javascript" src="libs/jq/jquery.min.js"></script>
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+		<script type="text/javascript" src="src/convert.js"></script>
 		<script type="text/javascript" src="src/jquery.qr.js"></script>
 		<script type="text/javascript" src="src/digidealclass.js"></script>
 		<script type="text/javascript" src="src/digiObj.js"></script>
@@ -49,7 +51,11 @@
 					<input type="text" id="address" placeholder="Insert DigiByte-address"/>
 				</div>
 				<div>
-					<input type="number" step="0.0001" id="amount" placeholder="Insert amount in DGBs e.g. 1,04 for 1,04DGB"/>
+					<input type="number" step="0.01" id="currency" class="" placeholder=""/>
+					<select id="coptions">
+						
+					</select>
+
 				</div>
 			</div>	
 			<h3>Introduction</h3>
@@ -119,7 +125,7 @@ var newpay = function(e) {
 }
 	
 
-var pvk = fgp('ppk');
+var pvk = fgp('ppk') || false;
 var data =  fgp('data') || makeid(10);
 var address = fgp('addr') || false;
 var amount = fgp('am') || false;
