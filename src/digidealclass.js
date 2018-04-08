@@ -246,7 +246,7 @@ class DigiDeal {
 				this.onNewPayment(this.getStatus());
 			}
 			
-			this.showDetails('<div>Requesting '+this.unit.fromSatoshis(this.amount).toBTC()+' DGB </div>');
+			this.showDetails('<div>Requesting '+this.unit.fromSatoshis(this.remainingAmount).toBTC()+' DGB </div>');
 			
 			this.checkPayment()
 			this.updateStatus() 
