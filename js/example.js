@@ -6,7 +6,7 @@
 			
 			
 			for(var i in cs) {
-				var option = $('<option>'+cs[i]+'</option>');
+				var option = $('<option value="'+i+'">'+cs[i].name+'</option>');
 				if(cs[i] == 'EUR') {
 					option.attr('selected',true);
 				}
@@ -85,7 +85,7 @@
 			
 			
 			$('#newtx').on('click',function() {
-				var cur = ($('#coptions').find('option:selected').text());
+				var cur = ($('#coptions').find('option:selected').val());
 				var amount = parseFloat($('#currency').val());
 				
 				
